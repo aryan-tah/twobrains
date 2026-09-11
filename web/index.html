@@ -6,49 +6,45 @@
 <title>TwoBrains</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-  :root { --bg:#04050a; --ink:#e9ebf3; --dim:#7d829a; --male:#4aa3ff; --female:#ff5fa2; --song:#ffd166; --accept:#2ee6a6; --reject:#ff4d4d; }
+  :root { --bg:#03040a; --ink:#eef0f7; --dim:#8a90a8; --male:#4aa3ff; --female:#ff5fa2; --song:#ffd166; --accept:#2ee6a6; --reject:#ff4d4d; }
   * { box-sizing:border-box }
   html, body { height:100% }
   body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 "IBM Plex Sans", -apple-system, system-ui, sans-serif; overflow:hidden }
-  #bg { position:fixed; inset:0; z-index:0 }
-  #ui { position:relative; z-index:1; height:100%; display:grid; grid-template-rows:auto 1fr 150px auto; }
-  header { display:flex; align-items:baseline; gap:16px; padding:12px 20px 4px; }
-  header h1 { margin:0; font-size:20px; font-weight:600; letter-spacing:.3px }
-  header .sub { color:var(--dim); font-size:12.5px }
-  #grid { display:grid; grid-template-columns:1fr 1.2fr 1fr; gap:10px; padding:4px 12px 0; min-height:0 }
-  .panel { position:relative; border-radius:14px; overflow:hidden; background:rgba(10,12,22,.55); border:1px solid rgba(80,90,130,.18); backdrop-filter:blur(2px) }
-  .panel canvas { display:block; width:100%; height:100% }
-  .panel h2 { position:absolute; left:14px; top:10px; margin:0; font-size:13px; font-weight:600; z-index:2; pointer-events:none }
-  .panel h2 small { color:var(--dim); font-weight:400; margin-left:8px }
-  .legend { position:absolute; right:12px; top:34px; font-size:11px; color:var(--dim); z-index:2; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 10px; max-width:75%; pointer-events:none }
-  .legend i { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; box-shadow:0 0 6px currentColor }
-  .hud { position:absolute; left:14px; bottom:12px; font-size:12px; color:var(--dim); z-index:2; line-height:1.55; pointer-events:none }
+  #view { position:fixed; inset:0; display:block; width:100%; height:100% }
+  .ov { position:fixed; z-index:2; pointer-events:none }
+  #title { left:22px; top:16px }
+  #title h1 { margin:0; font-size:22px; font-weight:600; letter-spacing:.3px }
+  #title .sub { color:var(--dim); font-size:12.5px; max-width:520px; margin-top:2px }
+  .card { background:rgba(6,8,18,.55); border:1px solid rgba(90,100,150,.18); border-radius:12px; padding:10px 14px; backdrop-filter:blur(6px) }
+  .card h2 { margin:0 0 4px; font-size:13px; font-weight:600 }
+  .card h2 small { color:var(--dim); font-weight:400; margin-left:8px; font-size:11.5px }
+  .legend { font-size:11px; color:var(--dim); display:flex; flex-wrap:wrap; gap:3px 10px; margin-top:6px; max-width:340px }
+  .legend i { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px; vertical-align:middle; box-shadow:0 0 6px currentColor }
+  .hud { font-size:12px; color:var(--dim); line-height:1.6; margin-top:6px }
   .hud b { color:var(--ink); font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums }
-  .hint { position:absolute; right:12px; bottom:10px; font-size:10.5px; color:rgba(125,130,154,.7); z-index:2; pointer-events:none }
-  #traces { margin:10px 12px 0; border-radius:14px; background:rgba(10,12,22,.55); border:1px solid rgba(80,90,130,.18) }
+  #mCard { left:22px; top:96px } #fCard { right:22px; top:96px; text-align:right } #fCard .legend { justify-content:flex-end }
+  #aCard { left:50%; transform:translateX(-50%); bottom:196px; text-align:center }
+  #aCard .hud { margin-top:2px }
+  #traces { position:fixed; left:12px; right:12px; bottom:56px; height:128px; z-index:2; background:rgba(6,8,18,.5); border:1px solid rgba(90,100,150,.18); border-radius:12px; backdrop-filter:blur(6px) }
   #traces canvas { display:block; width:100%; height:100% }
-  #controls { display:flex; gap:14px; align-items:center; padding:10px 20px 12px; color:var(--dim); flex-wrap:wrap }
-  button, select { background:rgba(26,29,43,.9); color:var(--ink); border:1px solid #2a2e40; border-radius:8px; padding:6px 12px; cursor:pointer; font:13px "IBM Plex Sans", system-ui, sans-serif }
+  #controls { position:fixed; left:12px; right:12px; bottom:10px; z-index:3; display:flex; gap:14px; align-items:center; padding:0 10px; color:var(--dim); flex-wrap:wrap }
+  button, select { background:rgba(20,23,38,.85); color:var(--ink); border:1px solid #2a2e40; border-radius:8px; padding:6px 12px; cursor:pointer; font:13px "IBM Plex Sans", system-ui, sans-serif }
   button:hover { background:#232738 } button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid var(--male); outline-offset:2px }
   input[type=range] { width:300px; accent-color:var(--male) }
   #time, #status { font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums }
   #status { margin-left:auto }
-  @media (max-width:900px) { body { overflow:auto } #ui { height:auto; grid-template-rows:auto auto 150px auto } #grid { grid-template-columns:1fr } .panel { height:360px } input[type=range] { width:160px } }
+  .hint { position:fixed; right:22px; bottom:196px; z-index:2; font-size:11px; color:rgba(138,144,168,.7); pointer-events:none }
+  @media (max-width:900px) { #mCard, #fCard { display:none } .sub { display:none } input[type=range] { width:140px } }
   @media (prefers-reduced-motion:reduce) { * { animation:none !important } }
 </style>
 </head>
 <body>
-<canvas id="bg"></canvas>
-<div id="ui">
-<header>
-  <h1>TwoBrains</h1>
-  <span class="sub">a real male fly brain (MaleCNS v1.0, 164,611 neurons) and a real female fly brain (FlyWire v783, 139,248 neurons), simulated together in one courtship arena</span>
-</header>
-<div id="grid">
-  <div class="panel"><h2>♂ male brain <small id="mInfo"></small></h2><canvas id="mBrain"></canvas><div class="legend" id="mLegend"></div><div class="hud" id="mHud"></div><div class="hint">drag to rotate</div></div>
-  <div class="panel"><h2>arena <small>20 mm courtship chamber</small></h2><canvas id="arena"></canvas><div class="hud" id="aHud"></div><div class="hint">drag to orbit</div></div>
-  <div class="panel"><h2>♀ female brain <small id="fInfo"></small></h2><canvas id="fBrain"></canvas><div class="legend" id="fLegend"></div><div class="hud" id="fHud"></div><div class="hint">drag to rotate</div></div>
-</div>
+<canvas id="view"></canvas>
+<div class="ov" id="title"><h1>TwoBrains</h1><div class="sub">a real male fly brain and a real female fly brain, simulated together and wired to each other only through the channels real flies court with</div></div>
+<div class="ov card" id="mCard"><h2>♂ male brain <small id="mInfo"></small></h2><div class="legend" id="mLegend"></div><div class="hud" id="mHud"></div></div>
+<div class="ov card" id="fCard"><h2>♀ female brain <small id="fInfo"></small></h2><div class="legend" id="fLegend"></div><div class="hud" id="fHud"></div></div>
+<div class="ov card" id="aCard"><h2>courtship chamber <small>20 mm</small></h2><div class="hud" id="aHud"></div></div>
+<div class="hint">drag to orbit · scroll to zoom</div>
 <div id="traces"><canvas id="tr"></canvas></div>
 <div id="controls">
   <button id="play">▶ play</button>
@@ -56,182 +52,233 @@
   <input type="range" id="scrub" min="0" max="0" value="0" aria-label="scrub time">
   <span id="time">0.00 s</span>
   <label>run <select id="run"></select></label>
+  <label><input type="checkbox" id="wires" checked> wiring</label>
   <span id="status"></span>
-</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const RUNS = window.TWOBRAINS_RUNS || ["courtship_both", "courtship", "baseline", "no_song", "blind"];
 const LABELS = { courtship_both: "courtship · receptive ♀", courtship: "courtship · unreceptive ♀", baseline: "pure wiring, no arousal", no_song: "mute ♂ (pIP10 silenced)", blind: "blind ♂ (LC10a silenced)" };
-const GROUP_COLORS = ["#3a4058", "#ffd166", "#ff8c42", "#4aa3ff", "#9b5cff", "#2ee6a6", "#ff5fa2", "#c8ff5c"];
+const GROUP_COLORS = ["#4a5270", "#ffd166", "#ff8c42", "#4aa3ff", "#b07cff", "#2ee6a6", "#ff5fa2", "#c8ff5c"];
 const $ = id => document.getElementById(id);
+const PR = Math.min(devicePixelRatio || 1, 2);
 let data = null, tick = 0, playing = false, speed = 1, acc = 0, lastT = 0;
 
-/* ---------- shared: soft glowing point sprite material ---------- */
-const pointVS = `attribute float aSize; attribute vec3 aColor; attribute float aGlow; varying vec3 vColor; varying float vGlow;
-void main(){ vColor=aColor; vGlow=aGlow; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*(9.5/-mv.z); gl_Position=projectionMatrix*mv; }`;
+/* ---------- renderer / scene ---------- */
+const renderer = new THREE.WebGLRenderer({ canvas: $("view"), antialias: true, alpha: false });
+renderer.setPixelRatio(PR); renderer.setClearColor(0x03040a, 1); renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x03040a, 0.0085);
+const cam = new THREE.PerspectiveCamera(40, 1, 0.1, 500);
+let theta = 0.35, phi = 1.02, dist = 62, auto = true; const target = new THREE.Vector3(0, 6, 0);
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+addEventListener("resize", resize); resize();
+{ let down = false, lx = 0, ly = 0; const el = $("view");
+  el.addEventListener("pointerdown", e => { down = true; lx = e.clientX; ly = e.clientY; el.setPointerCapture(e.pointerId); });
+  el.addEventListener("pointermove", e => { if (!down) return; theta -= (e.clientX - lx) * 0.005; phi = Math.max(0.2, Math.min(1.5, phi + (e.clientY - ly) * 0.005)); lx = e.clientX; ly = e.clientY; auto = false; });
+  el.addEventListener("pointerup", () => down = false); el.addEventListener("pointercancel", () => down = false);
+  el.addEventListener("wheel", e => { dist = Math.max(25, Math.min(140, dist * (1 + e.deltaY * 0.001))); e.preventDefault(); }, { passive: false }); }
+
+/* ---------- glowing point sprites ---------- */
+const pointVS = `uniform float uPx; attribute float aSize; attribute vec3 aColor; attribute float aGlow; varying vec3 vColor; varying float vGlow;
+void main(){ vColor=aColor; vGlow=aGlow; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uPx*(120.0/-mv.z); gl_Position=projectionMatrix*mv; }`;
 const pointFS = `varying vec3 vColor; varying float vGlow;
-void main(){ float d=length(gl_PointCoord-0.5); if(d>0.5) discard; float core=smoothstep(0.5,0.05,d); float halo=smoothstep(0.5,0.0,d)*0.35;
-  float a=mix(0.13,1.0,vGlow)*(core+halo*vGlow); gl_FragColor=vec4(vColor*(0.75+0.9*vGlow), a); }`;
+void main(){ float d=length(gl_PointCoord-0.5); if(d>0.5) discard; float core=smoothstep(0.5,0.08,d); float halo=smoothstep(0.5,0.0,d)*0.4;
+  float a=mix(0.2,1.0,vGlow)*(core+halo*vGlow); gl_FragColor=vec4(vColor*(0.8+0.9*vGlow), a); }`;
 function makePoints(n) {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
   geo.setAttribute("aColor", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
   geo.setAttribute("aSize", new THREE.BufferAttribute(new Float32Array(n), 1));
   geo.setAttribute("aGlow", new THREE.BufferAttribute(new Float32Array(n), 1));
-  const mat = new THREE.ShaderMaterial({ vertexShader: pointVS, fragmentShader: pointFS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-  return new THREE.Points(geo, mat);
+  const mat = new THREE.ShaderMaterial({ uniforms: { uPx: { value: PR } }, vertexShader: pointVS, fragmentShader: pointFS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const p = new THREE.Points(geo, mat); p.frustumCulled = false; return p;
 }
-function starfield(scene, n, spread, size) {
-  const p = makePoints(n), pos = p.geometry.attributes.position.array, col = p.geometry.attributes.aColor.array, sz = p.geometry.attributes.aSize.array, gl = p.geometry.attributes.aGlow.array;
-  for (let i = 0; i < n; i++) { pos[3*i] = (Math.random() - .5) * spread; pos[3*i+1] = (Math.random() - .5) * spread; pos[3*i+2] = (Math.random() - .5) * spread; const c = 0.35 + Math.random() * 0.4; col[3*i] = c * 0.6; col[3*i+1] = c * 0.7; col[3*i+2] = c; sz[i] = size * (0.5 + Math.random()); gl[i] = Math.random() * 0.3; }
-  scene.add(p); return p;
-}
-function makeRenderer(canvas) { const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); r.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); return r; }
-function sizeTo(r, cam) { const c = r.domElement, w = c.clientWidth, h = c.clientHeight; if (c.width !== w * r.getPixelRatio() || c.height !== h * r.getPixelRatio()) { r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); } }
-function drag(el, onMove) { let down = false, lx = 0, ly = 0; el.addEventListener("pointerdown", e => { down = true; lx = e.clientX; ly = e.clientY; el.setPointerCapture(e.pointerId); }); el.addEventListener("pointermove", e => { if (!down) return; onMove(e.clientX - lx, e.clientY - ly); lx = e.clientX; ly = e.clientY; }); el.addEventListener("pointerup", () => down = false); el.addEventListener("pointercancel", () => down = false); }
 const hex = h => new THREE.Color(h);
 
-/* ---------- background particle field ---------- */
-const bgR = makeRenderer($("bg")), bgS = new THREE.Scene(), bgC = new THREE.PerspectiveCamera(60, 1, 0.1, 400);
-bgC.position.set(0, 0, 60); starfield(bgS, 1800, 260, 60); bgS.fog = new THREE.FogExp2(0x04050a, 0.008);
+/* ---------- environment ---------- */
+scene.add(new THREE.HemisphereLight(0x6b7cc4, 0x05060c, 0.8));
+const key = new THREE.DirectionalLight(0xe4ecff, 1.0); key.position.set(14, 30, 10); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.camera.left = key.shadow.camera.bottom = -14; key.shadow.camera.right = key.shadow.camera.top = 14; scene.add(key);
+{ // deep space particles
+  const n = 2600, p = makePoints(n), a = p.geometry.attributes;
+  for (let i = 0; i < n; i++) { const r = 60 + Math.random() * 160, th = Math.random() * 6.283, ph = Math.acos(2 * Math.random() - 1);
+    a.position.array.set([r * Math.sin(ph) * Math.cos(th), r * Math.cos(ph) * 0.6 + 10, r * Math.sin(ph) * Math.sin(th)], 3 * i);
+    const c = 0.3 + Math.random() * 0.5; a.aColor.array.set([c * 0.55, c * 0.65, c], 3 * i); a.aSize.array[i] = 1.2 + Math.random() * 2.2; a.aGlow.array[i] = Math.random() * 0.25; }
+  scene.add(p); }
+{ // ground: wide faint grid disc
+  const cv = document.createElement("canvas"); cv.width = cv.height = 2048; const g = cv.getContext("2d");
+  const grad = g.createRadialGradient(1024, 1024, 200, 1024, 1024, 1024); grad.addColorStop(0, "#0a0d1c"); grad.addColorStop(1, "#03040a"); g.fillStyle = grad; g.fillRect(0, 0, 2048, 2048);
+  g.strokeStyle = "rgba(90,110,180,0.10)"; g.lineWidth = 1.5; for (let x = 0; x <= 2048; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 2048); g.stroke(); g.beginPath(); g.moveTo(0, x); g.lineTo(2048, x); g.stroke(); }
+  const tex = new THREE.CanvasTexture(cv);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(48, 96), new THREE.MeshStandardMaterial({ map: tex, roughness: 1, metalness: 0 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.05; ground.receiveShadow = true; scene.add(ground); }
+{ // the courtship dish
+  const cv = document.createElement("canvas"); cv.width = cv.height = 1024; const g = cv.getContext("2d");
+  g.fillStyle = "#0d1124"; g.fillRect(0, 0, 1024, 1024);
+  for (let r = 48; r < 512; r += 48) { g.strokeStyle = "rgba(110,130,200,0.18)"; g.lineWidth = 1.4; g.beginPath(); g.arc(512, 512, r, 0, 6.283); g.stroke(); }
+  for (let a = 0; a < 12; a++) { g.strokeStyle = "rgba(110,130,200,0.09)"; g.beginPath(); g.moveTo(512, 512); g.lineTo(512 + 512 * Math.cos(a * Math.PI / 6), 512 + 512 * Math.sin(a * Math.PI / 6)); g.stroke(); }
+  const tex = new THREE.CanvasTexture(cv);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(10, 96), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, metalness: 0.15 })); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.02; floor.receiveShadow = true; scene.add(floor);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(10, 0.14, 12, 160), new THREE.MeshStandardMaterial({ color: 0x7f95ff, emissive: 0x3350ff, emissiveIntensity: 0.6, roughness: 0.4 })); rim.rotation.x = Math.PI / 2; rim.position.y = 0.1; scene.add(rim);
+  const wall = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 2.4, 128, 1, true), new THREE.MeshPhysicalMaterial({ color: 0xa8bcff, transparent: true, opacity: 0.07, roughness: 0.1, side: THREE.DoubleSide, depthWrite: false })); wall.position.y = 1.2; scene.add(wall);
+  const rimLight = new THREE.PointLight(0x5a78ff, 0.6, 30); rimLight.position.set(0, 6, 0); scene.add(rimLight); }
 
-/* ---------- brain views ---------- */
-class BrainView {
-  constructor(canvas, who) {
-    this.who = who; this.r = makeRenderer(canvas); this.scene = new THREE.Scene(); this.cam = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    this.cam.position.set(0, 0, 3.6); this.rig = new THREE.Group(); this.scene.add(this.rig); this.rotY = who === "male" ? -0.35 : 0.35; this.rotX = 0.15; this.auto = true;
-    starfield(this.scene, 500, 20, 4);
-    drag(canvas, (dx, dy) => { this.rotY += dx * 0.006; this.rotX = Math.max(-1.2, Math.min(1.2, this.rotX + dy * 0.006)); this.auto = false; });
+/* ---------- flies ---------- */
+function makeFly(color, glow) {
+  const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color, emissive: glow, emissiveIntensity: 0.3, roughness: 0.45, metalness: 0.25 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 28, 18), mat); body.scale.set(1.9, 0.75, 1); body.castShadow = true; g.add(body);
+  const thorax = new THREE.Mesh(new THREE.SphereGeometry(0.42, 22, 14), mat); thorax.position.set(0.55, 0.12, 0); thorax.castShadow = true; g.add(thorax);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 22, 14), mat); head.position.set(1.2, 0.12, 0); head.castShadow = true; g.add(head);
+  const eyeM = new THREE.MeshStandardMaterial({ color: 0xb02020, emissive: 0x7a0e0e, emissiveIntensity: 0.8, roughness: 0.25 });
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.17, 14, 10), eyeM); e.position.set(1.38, 0.2, s * 0.26); g.add(e); }
+  const antM = new THREE.MeshStandardMaterial({ color: 0x3a4060 });
+  for (const s of [-1, 1]) { const a = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.5, 6), antM); a.position.set(1.55, 0.35, s * 0.12); a.rotation.z = -0.9; a.rotation.x = s * 0.4; g.add(a); }
+  const wingM = new THREE.MeshPhysicalMaterial({ color: 0xd6e4ff, transparent: true, opacity: 0.38, roughness: 0.1, side: THREE.DoubleSide, depthWrite: false });
+  const wings = [];
+  for (const s of [-1, 1]) { const w = new THREE.Mesh(new THREE.CircleGeometry(0.75, 28), wingM); w.scale.set(1.55, 0.5, 1); const piv = new THREE.Group(); piv.position.set(0.15, 0.48, s * 0.25); piv.add(w); w.position.set(-1.0, 0, 0); piv.rotation.y = s * 0.3; g.add(piv); wings.push({ piv, s }); }
+  const legM = new THREE.MeshStandardMaterial({ color: 0x2a2f45 });
+  for (let i = 0; i < 3; i++) for (const s of [-1, 1]) { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.0, 6), legM); l.position.set(0.7 - i * 0.55, -0.35, s * 0.5); l.rotation.x = s * 1.0; g.add(l); }
+  const halo = new THREE.PointLight(color, 1.0, 8); halo.position.y = 1; g.add(halo);
+  g.position.y = 0.62; g.scale.setScalar(1.15); scene.add(g); return { g, wings, mats: [mat], halo };
+}
+const male = makeFly(0x4aa3ff, 0x1b4dff), female = makeFly(0xff5fa2, 0xff1f70);
+const rings = []; for (let i = 0; i < 5; i++) { const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1.0, 72), new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false })); m.rotation.x = -Math.PI / 2; m.position.y = 0.08; scene.add(m); rings.push(m); }
+function makeTrail(color) { const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(240 * 3), 3)); const l = new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.5 })); l.frustumCulled = false; scene.add(l); return l; }
+const trailM = makeTrail(0x4aa3ff), trailF = makeTrail(0xff5fa2);
+const acceptLight = new THREE.PointLight(0x2ee6a6, 0, 10); scene.add(acceptLight); const rejectLight = new THREE.PointLight(0xff4d4d, 0, 10); scene.add(rejectLight);
+
+/* ---------- brains ---------- */
+class Brain {
+  constructor(who, x) {
+    this.who = who; this.rig = new THREE.Group(); this.rig.position.set(x, 13.5, -4); scene.add(this.rig); this.spin = who === "male" ? 0.3 : -0.3;
+    this.label = new THREE.PointLight(who === "male" ? 0x4aa3ff : 0xff5fa2, 0.5, 40); this.label.position.set(x, 13.5, 4); scene.add(this.label);
   }
   load(b) {
-    if (this.pts) this.rig.remove(this.pts);
+    if (this.pts) { this.rig.remove(this.pts); this.rig.remove(this.wires); }
     const n = b.n_display, pts = makePoints(n), pos = pts.geometry.attributes.position.array;
-    // orient: x lateral; male z runs brain->nerve cord (put it downward), female y is dorsoventral
     const P = b.pos.map(p => this.who === "male" ? [p[0], -p[2], p[1]] : [p[0], -p[1], p[2]]);
     const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9]; for (const p of P) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], p[k]); mx[k] = Math.max(mx[k], p[k]); }
-    const ctr = mn.map((v, k) => (v + mx[k]) / 2), scale = 2.1 / Math.max(mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]);
-    for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) pos[3*i+k] = (P[i][k] - ctr[k]) * scale;
-    this.base = new Float32Array(n * 3); this.hot = new Float32Array(n * 3); this.grp = b.group; this.glow = new Float32Array(n);
-    const dim = hex("#3b4460"), white = hex("#f2f5ff");
-    for (let i = 0; i < n; i++) { const g = b.group[i], c = g ? hex(GROUP_COLORS[g]).multiplyScalar(0.55) : dim, h = g ? hex(GROUP_COLORS[g]) : white; this.base.set([c.r, c.g, c.b], 3*i); this.hot.set([h.r, h.g, h.b], 3*i); }
+    const ctr = mn.map((v, k) => (v + mx[k]) / 2), scale = 20 / Math.max(mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]);
+    this.local = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) pos[3*i+k] = this.local[3*i+k] = (P[i][k] - ctr[k]) * scale;
+    this.base = new Float32Array(n * 3); this.hot = new Float32Array(n * 3); this.grp = b.group; this.glow = new Float32Array(n); this.n = n;
+    const dim = this.who === "male" ? hex("#3d5a8a") : hex("#8a3d66"), white = hex("#ffffff");
+    for (let i = 0; i < n; i++) { const g = b.group[i], c = g ? hex(GROUP_COLORS[g]).multiplyScalar(0.7) : dim, h = g ? hex(GROUP_COLORS[g]) : white; this.base.set([c.r, c.g, c.b], 3*i); this.hot.set([h.r, h.g, h.b], 3*i); }
     pts.geometry.attributes.aColor.array.set(this.base);
-    const sz = pts.geometry.attributes.aSize.array; for (let i = 0; i < n; i++) sz[i] = b.group[i] ? 1.7 : 1.2;
-    this.pts = pts; this.rig.add(pts); this.n = n;
+    const sz = pts.geometry.attributes.aSize.array; for (let i = 0; i < n; i++) sz[i] = b.group[i] ? 2.2 : 1.35;
+    this.pts = pts; this.rig.add(pts);
+    // wiring layer: strongest connections among displayed neurons
+    const E = b.edges, m = E.length, wp = new Float32Array(m * 6), wc = new Float32Array(m * 6);
+    for (let e = 0; e < m; e++) { const a = E[e][0], c = E[e][1]; wp.set(this.local.subarray(3*a, 3*a+3), 6*e); wp.set(this.local.subarray(3*c, 3*c+3), 6*e+3); }
+    const wg = new THREE.BufferGeometry(); wg.setAttribute("position", new THREE.BufferAttribute(wp, 3)); wg.setAttribute("color", new THREE.BufferAttribute(wc, 3));
+    this.wires = new THREE.LineSegments(wg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false })); this.wires.frustumCulled = false; this.rig.add(this.wires);
+    this.edges = E; this.esign = b.esign; this.wc = wc;
+    this.exc = this.who === "male" ? [0.45, 0.62, 1.0] : [1.0, 0.5, 0.72]; this.inh = [0.95, 0.35, 0.45];
+    // centroid of the hearing (JO) population, for the song stream target
+    const gi = b.groups.indexOf("hearing (JO)"); let cx = 0, cy = 0, cz = 0, k = 0;
+    for (let i = 0; i < n; i++) if (b.group[i] === gi) { cx += this.local[3*i]; cy += this.local[3*i+1]; cz += this.local[3*i+2]; k++; }
+    this.jo = new THREE.Vector3(cx / Math.max(1, k), cy / Math.max(1, k), cz / Math.max(1, k));
+    this.step([], true);
   }
   step(spikes, advance) {
     const g = this.glow, col = this.pts.geometry.attributes.aColor.array, sz = this.pts.geometry.attributes.aSize.array, ga = this.pts.geometry.attributes.aGlow.array;
-    if (advance) { for (let i = 0; i < this.n; i++) g[i] *= 0.74; for (const i of spikes) g[i] = 1; }
-    for (let i = 0; i < this.n; i++) { const a = g[i], grp = this.grp[i]; ga[i] = a; sz[i] = (grp ? 1.7 : 1.2) + a * (grp ? 4 : 3.2);
+    if (advance) { for (let i = 0; i < this.n; i++) g[i] *= 0.72; for (const i of spikes) g[i] = 1; }
+    for (let i = 0; i < this.n; i++) { const a = g[i], grp = this.grp[i]; ga[i] = a; sz[i] = (grp ? 2.2 : 1.35) + a * (grp ? 5 : 3.5);
       col[3*i] = this.base[3*i] + (this.hot[3*i] - this.base[3*i]) * a; col[3*i+1] = this.base[3*i+1] + (this.hot[3*i+1] - this.base[3*i+1]) * a; col[3*i+2] = this.base[3*i+2] + (this.hot[3*i+2] - this.base[3*i+2]) * a; }
     this.pts.geometry.attributes.aColor.needsUpdate = true; this.pts.geometry.attributes.aSize.needsUpdate = true; this.pts.geometry.attributes.aGlow.needsUpdate = true;
+    if (this.wires.visible) { const E = this.edges, wc = this.wc, base = 0.006;
+      for (let e = 0; e < E.length; e++) { const a = g[E[e][0]], c = this.esign[e] ? this.exc : this.inh, k = base + a * 0.75, k2 = base * 0.5 + a * 0.3;
+        wc[6*e] = c[0] * k; wc[6*e+1] = c[1] * k; wc[6*e+2] = c[2] * k; wc[6*e+3] = c[0] * k2; wc[6*e+4] = c[1] * k2; wc[6*e+5] = c[2] * k2; }
+      this.wires.geometry.attributes.color.needsUpdate = true; }
   }
-  render(dt) { if (this.auto) this.rotY += dt * 0.12; this.rig.rotation.set(this.rotX, this.rotY, 0); sizeTo(this.r, this.cam); this.r.render(this.scene, this.cam); }
+  update(dt) { this.rig.rotation.y += dt * 0.10 * this.spin; }
+  world(v) { return this.rig.localToWorld(v.clone()); }
+  bottom() { return new THREE.Vector3(this.rig.position.x, this.rig.position.y - 9, this.rig.position.z); }
 }
+const mBrain = new Brain("male", -22), fBrain = new Brain("female", 22);
 
-/* ---------- arena ---------- */
-class ArenaView {
-  constructor(canvas) {
-    this.r = makeRenderer(canvas); this.r.shadowMap.enabled = true; this.scene = new THREE.Scene(); this.scene.fog = new THREE.Fog(0x04050a, 30, 70);
-    this.cam = new THREE.PerspectiveCamera(42, 1, 0.1, 200); this.theta = 0.6; this.phi = 0.95; this.dist = 30; this.auto = true;
-    drag(canvas, (dx, dy) => { this.theta -= dx * 0.006; this.phi = Math.max(0.25, Math.min(1.45, this.phi + dy * 0.006)); this.auto = false; });
-    const s = this.scene;
-    s.add(new THREE.HemisphereLight(0x5a6aa8, 0x0a0b14, 0.9));
-    const key = new THREE.DirectionalLight(0xdfe8ff, 1.1); key.position.set(10, 22, 8); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); s.add(key);
-    // dish floor with concentric rings
-    const cv = document.createElement("canvas"); cv.width = cv.height = 1024; const g = cv.getContext("2d");
-    g.fillStyle = "#0b0e1a"; g.fillRect(0, 0, 1024, 1024);
-    for (let r = 40; r < 512; r += 48) { g.strokeStyle = "rgba(90,110,170,0.16)"; g.lineWidth = 1.2; g.beginPath(); g.arc(512, 512, r, 0, 6.283); g.stroke(); }
-    for (let a = 0; a < 12; a++) { g.strokeStyle = "rgba(90,110,170,0.08)"; g.beginPath(); g.moveTo(512, 512); g.lineTo(512 + 512 * Math.cos(a * Math.PI / 6), 512 + 512 * Math.sin(a * Math.PI / 6)); g.stroke(); }
-    const tex = new THREE.CanvasTexture(cv);
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(10, 96), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, metalness: 0.1 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; s.add(floor);
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(10, 0.12, 12, 128), new THREE.MeshStandardMaterial({ color: 0x6f86ff, emissive: 0x2a3cff, emissiveIntensity: 0.5, roughness: 0.4 })); rim.rotation.x = Math.PI / 2; s.add(rim);
-    const wall = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 2.2, 96, 1, true), new THREE.MeshPhysicalMaterial({ color: 0x9fb4ff, transparent: true, opacity: 0.08, roughness: 0.1, side: THREE.DoubleSide, depthWrite: false })); wall.position.y = 1.1; s.add(wall);
-    starfield(s, 700, 90, 40);
-    this.male = this.makeFly(0x4aa3ff, 0x1a4fff); this.female = this.makeFly(0xff5fa2, 0xff1f70); s.add(this.male.g); s.add(this.female.g);
-    this.rings = []; for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.0, 64), new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false })); m.rotation.x = -Math.PI / 2; m.position.y = 0.05; s.add(m); this.rings.push(m); }
-    this.trailM = this.makeTrail(0x4aa3ff); this.trailF = this.makeTrail(0xff5fa2); s.add(this.trailM); s.add(this.trailF);
-    this.acceptLight = new THREE.PointLight(0x2ee6a6, 0, 8); s.add(this.acceptLight); this.rejectLight = new THREE.PointLight(0xff4d4d, 0, 8); s.add(this.rejectLight);
-  }
-  makeFly(color, glow) {
-    const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color, emissive: glow, emissiveIntensity: 0.25, roughness: 0.5, metalness: 0.2 });
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 16), mat); body.scale.set(1.9, 0.75, 1); body.castShadow = true; g.add(body);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.36, 20, 14), mat); head.position.set(1.15, 0.1, 0); head.castShadow = true; g.add(head);
-    const eyeM = new THREE.MeshStandardMaterial({ color: 0x8b1a1a, emissive: 0x5a0a0a, emissiveIntensity: 0.6, roughness: 0.3 });
-    for (const sgn of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), eyeM); e.position.set(1.35, 0.18, sgn * 0.26); g.add(e); }
-    const wingM = new THREE.MeshPhysicalMaterial({ color: 0xcfe0ff, transparent: true, opacity: 0.35, roughness: 0.15, side: THREE.DoubleSide, depthWrite: false });
-    const wings = [];
-    for (const sgn of [-1, 1]) { const w = new THREE.Mesh(new THREE.CircleGeometry(0.7, 24), wingM); w.scale.set(1.5, 0.55, 1); const piv = new THREE.Group(); piv.position.set(-0.1, 0.42, sgn * 0.25); piv.add(w); w.position.set(-0.9, 0, 0); piv.rotation.y = sgn * 0.35; g.add(piv); wings.push({ piv, sgn }); }
-    const legM = new THREE.MeshStandardMaterial({ color: 0x2a2f45 });
-    for (let i = 0; i < 3; i++) for (const sgn of [-1, 1]) { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 6), legM); l.position.set(0.5 - i * 0.5, -0.35, sgn * 0.45); l.rotation.x = sgn * 0.9; g.add(l); }
-    const halo = new THREE.PointLight(color, 0.9, 6); halo.position.y = 0.8; g.add(halo);
-    g.position.y = 0.6; return { g, wings, body, halo };
-  }
-  makeTrail(color) { const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(200 * 3), 3)); const l = new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.45 })); l.frustumCulled = false; return l; }
-  setTrail(line, ix, iy) { const a = line.geometry.attributes.position.array, t0 = Math.max(0, tick - 199); let k = 0; for (let t = t0; t <= tick; t++) { const b = data.bodies[t]; a[k++] = b[ix]; a[k++] = 0.15; a[k++] = -b[iy]; } line.geometry.setDrawRange(0, tick - t0 + 1); line.geometry.attributes.position.needsUpdate = true; }
-  pose(fly, x, y, h, t, singing) {
-    fly.g.position.set(x, 0.6 + Math.sin(t * 6) * 0.02, -y); fly.g.rotation.y = h * Math.PI / 180;
-    for (const w of fly.wings) { const ext = singing > 0.02 && w.sgn === 1 ? 1.25 * Math.min(1, singing * 2) : 0; w.piv.rotation.y = w.sgn * 0.35 + ext * w.sgn + (ext ? Math.sin(t * 90) * 0.35 : 0); }
-  }
-  render(dt, t) {
-    if (!data) return;
-    const [mx, my, mh, fx, fy, fh, sing, accpt, rej, dist] = data.bodies[tick];
-    this.pose(this.male, mx, my, mh, t, sing); this.pose(this.female, fx, fy, fh, t, 0);
-    this.male.halo.intensity = 0.8 + sing * 1.5; this.female.body.material.emissiveIntensity = 0.25 + accpt * 1.2;
-    this.acceptLight.position.set(fx, 1.5, -fy); this.acceptLight.intensity = accpt * 4; this.rejectLight.position.set(fx, 1.5, -fy); this.rejectLight.intensity = rej * 4;
-    this.rings.forEach((m, i) => { const ph = ((t * 0.9) + i / 4) % 1; m.position.set(mx, 0.05, -my); m.scale.setScalar(0.6 + ph * 7); m.material.opacity = sing > 0.02 ? (1 - ph) * 0.55 * Math.min(1, sing * 1.5) : 0; });
-    this.setTrail(this.trailM, 0, 1); this.setTrail(this.trailF, 3, 4);
-    if (this.auto) this.theta += dt * 0.08;
-    this.cam.position.set(Math.sin(this.theta) * Math.sin(this.phi) * this.dist, Math.cos(this.phi) * this.dist, Math.cos(this.theta) * Math.sin(this.phi) * this.dist); this.cam.lookAt(0, 0, 0);
-    sizeTo(this.r, this.cam); this.r.render(this.scene, this.cam);
-    $("aHud").innerHTML = `distance <b>${dist.toFixed(1)} mm</b><br>♂ song <b>${(sing * 100).toFixed(0)}%</b> · ♀ accept <b>${(accpt * 100).toFixed(0)}%</b> · reject <b>${(rej * 100).toFixed(0)}%</b>`;
+/* ---------- streams: particles flowing along curves ---------- */
+class Stream {
+  constructor(n, color, size) { this.n = n; this.pts = makePoints(n); this.off = new Float32Array(n).map(() => Math.random()); this.jit = new Float32Array(n * 3).map(() => (Math.random() - 0.5)); this.color = hex(color); this.size = size; this.level = 0; this.pos = 0;
+    const a = this.pts.geometry.attributes; for (let i = 0; i < n; i++) { a.aColor.array.set([this.color.r, this.color.g, this.color.b], 3*i); a.aSize.array[i] = size * (0.6 + Math.random() * 0.8); a.aGlow.array[i] = 0.6 + Math.random() * 0.4; } scene.add(this.pts); }
+  update(dt, from, to, level, spread) {
+    this.level += (level - this.level) * Math.min(1, dt * 4); const L = this.level; this.pts.visible = L > 0.01;
+    if (!this.pts.visible) return;
+    this.pos += dt * (0.25 + 0.9 * L);
+    const mid = from.clone().lerp(to, 0.5); mid.y += from.distanceTo(to) * 0.28;
+    const curve = new THREE.QuadraticBezierCurve3(from, mid, to), p = this.pts.geometry.attributes.position.array, a = this.pts.geometry.attributes;
+    const shown = Math.max(1, Math.floor(this.n * Math.min(1, 0.15 + L)));
+    for (let i = 0; i < this.n; i++) { if (i >= shown) { p[3*i] = 0; p[3*i+1] = -50; p[3*i+2] = 0; continue; }
+      const u = (this.pos * (0.5 + this.off[i] * 0.5) + this.off[i]) % 1, q = curve.getPoint(u), s = spread * Math.sin(u * Math.PI);
+      p[3*i] = q.x + this.jit[3*i] * s; p[3*i+1] = q.y + this.jit[3*i+1] * s; p[3*i+2] = q.z + this.jit[3*i+2] * s; a.aGlow.array[i] = 0.4 + 0.6 * Math.sin(u * Math.PI) * L; }
+    a.position.needsUpdate = true; a.aGlow.needsUpdate = true;
   }
 }
+const sensM = new Stream(260, "#9ad0ff", 2.2), motM = new Stream(200, "#4aa3ff", 2.2), sensF = new Stream(260, "#ffb3d1", 2.2), motF = new Stream(200, "#ff5fa2", 2.2), song = new Stream(420, "#ffd166", 2.6), cva = new Stream(160, "#c8ff5c", 1.8);
 
-const mView = new BrainView($("mBrain"), "male"), fView = new BrainView($("fBrain"), "female"), aView = new ArenaView($("arena"));
-
+/* ---------- traces / hud ---------- */
 function drawTraces() {
-  const c = $("tr"), d = devicePixelRatio || 1, W = c.clientWidth, H = c.clientHeight; if (c.width !== W * d) { c.width = W * d; c.height = H * d; } const g = c.getContext("2d"); g.setTransform(d, 0, 0, d, 0, 0);
-  g.clearRect(0, 0, W, H);
+  const c = $("tr"), W = c.clientWidth, H = c.clientHeight; if (c.width !== W * PR) { c.width = W * PR; c.height = H * PR; } const g = c.getContext("2d"); g.setTransform(PR, 0, 0, PR, 0, 0); g.clearRect(0, 0, W, H);
   const rows = [["male", "P1", "#ffd166", "♂ P1"], ["male", "song", "#ff8c42", "♂ song DN (pIP10)"], ["female", "P1", "#ff5fa2", "♀ pC1"], ["female", "accept", "#2ee6a6", "♀ accept DN (vpoDN)"], ["female", "reject", "#ff4d4d", "♀ reject DN (DNp13)"]];
-  const n = data.ticks, x0 = 150, w = W - x0 - 12, rh = (H - 10) / rows.length;
-  rows.forEach(([who, key, col, label], r) => { const s = data.series[who][key] || []; const mx = Math.max(5, ...s); const y0 = 5 + r * rh;
-    g.fillStyle = "#7d829a"; g.font = "11px IBM Plex Sans, system-ui"; g.fillText(label, 12, y0 + rh * 0.65);
-    g.strokeStyle = col; g.lineWidth = 1.2; g.globalAlpha = 0.9; g.beginPath(); for (let t = 0; t < n; t++) { const X = x0 + t / n * w, Y = y0 + rh - 2 - (s[t] / mx) * (rh - 6); t ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.stroke(); g.globalAlpha = 1; });
-  g.strokeStyle = "#e9ebf3"; g.beginPath(); const X = x0 + tick / n * w; g.moveTo(X, 4); g.lineTo(X, H - 4); g.stroke();
+  const n = data.ticks, x0 = 150, w = W - x0 - 12, rh = (H - 8) / rows.length;
+  rows.forEach(([who, key, col, label], r) => { const s = data.series[who][key] || []; const mx = Math.max(5, ...s); const y0 = 4 + r * rh;
+    g.fillStyle = "#8a90a8"; g.font = "11px IBM Plex Sans, system-ui"; g.fillText(label, 12, y0 + rh * 0.68);
+    g.strokeStyle = col; g.lineWidth = 1.1; g.globalAlpha = 0.85; g.beginPath(); for (let t = 0; t < n; t++) { const X = x0 + t / n * w, Y = y0 + rh - 2 - (s[t] / mx) * (rh - 5); t ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.stroke(); g.globalAlpha = 1; });
+  g.strokeStyle = "#eef0f7"; g.beginPath(); const X = x0 + tick / n * w; g.moveTo(X, 3); g.lineTo(X, H - 3); g.stroke();
 }
 function hud() {
   const f = (who, k) => (data.series[who][k] ? data.series[who][k][tick] : 0).toFixed(0);
   $("mHud").innerHTML = `active neurons <b>${f("male", "_active")}</b><br>P1 <b>${f("male", "P1")} Hz</b> · song DN <b>${f("male", "song")} Hz</b><br>turn L/R <b>${f("male", "turn_L")}/${f("male", "turn_R")}</b> · forward <b>${f("male", "forward")}</b>`;
   $("fHud").innerHTML = `active neurons <b>${f("female", "_active")}</b><br>pC1 <b>${f("female", "P1")} Hz</b> · accept DN <b>${f("female", "accept")} Hz</b> · reject DN <b>${f("female", "reject")} Hz</b><br>turn L/R <b>${f("female", "turn_L")}/${f("female", "turn_R")}</b> · forward <b>${f("female", "forward")}</b>`;
+  const [,,,,,, sing, accpt, rej, d] = data.bodies[tick];
+  $("aHud").innerHTML = `distance <b>${d.toFixed(1)} mm</b> · ♂ song <b>${(sing * 100).toFixed(0)}%</b> · ♀ accept <b>${(accpt * 100).toFixed(0)}%</b> · reject <b>${(rej * 100).toFixed(0)}%</b>`;
   $("scrub").value = tick; $("time").textContent = (tick * data.tick_ms / 1000).toFixed(2) + " s";
 }
+function setTrail(line, ix, iy) { const a = line.geometry.attributes.position.array, t0 = Math.max(0, tick - 239); let k = 0; for (let t = t0; t <= tick; t++) { const b = data.bodies[t]; a[k++] = b[ix]; a[k++] = 0.2; a[k++] = -b[iy]; } line.geometry.setDrawRange(0, tick - t0 + 1); line.geometry.attributes.position.needsUpdate = true; }
+function pose(fly, x, y, h, t, singing) {
+  fly.g.position.set(x, 0.62 + Math.sin(t * 6) * 0.02, -y); fly.g.rotation.y = h * Math.PI / 180;
+  for (const w of fly.wings) { const ext = singing > 0.02 && w.s === 1 ? 1.3 * Math.min(1, singing * 2) : 0; w.piv.rotation.y = w.s * 0.3 + ext * w.s + (ext ? Math.sin(t * 95) * 0.4 : 0); }
+}
+const sum = (who, keys) => keys.reduce((s, k) => s + (data.series[who][k] ? data.series[who][k][tick] : 0), 0);
+
 async function load(name) {
   $("status").textContent = "loading " + (LABELS[name] || name) + "…";
   data = window.TWOBRAINS_DATA ? window.TWOBRAINS_DATA[name] : await (await fetch(`data/${name}.json`)).json();
-  tick = 0; $("scrub").max = data.ticks - 1;
-  mView.load(data.brains.male); fView.load(data.brains.female);
+  tick = 0; $("scrub").max = data.ticks - 1; mBrain.load(data.brains.male); fBrain.load(data.brains.female);
   for (const who of ["male", "female"]) { const b = data.brains[who];
-    $(who[0] + "Info").textContent = `${b.n_total.toLocaleString()} neurons · ${b.fired_total.toLocaleString()} fired · showing ${b.n_display.toLocaleString()}`;
-    $(who[0] + "Legend").innerHTML = b.groups.map((g, i) => i ? `<span style="color:${GROUP_COLORS[i]}"><i style="background:${GROUP_COLORS[i]}"></i><span style="color:#7d829a">${g}</span></span>` : "").join(""); }
-  $("status").textContent = `${data.ticks} ticks · ${(data.ticks * data.tick_ms / 1000).toFixed(1)} s simulated`;
-  mView.step(data.brains.male.spikes[0], true); fView.step(data.brains.female.spikes[0], true); drawTraces(); hud();
+    $(who[0] + "Info").textContent = `${b.n_total.toLocaleString()} neurons · ${b.edges.length.toLocaleString()} wires shown`;
+    $(who[0] + "Legend").innerHTML = b.groups.map((g, i) => i ? `<span style="color:${GROUP_COLORS[i]}"><i style="background:${GROUP_COLORS[i]}"></i><span style="color:#8a90a8">${g}</span></span>` : "").join(""); }
+  $("status").textContent = `${(data.ticks * data.tick_ms / 1000).toFixed(0)} s simulated · ${data.brains.male.n_total.toLocaleString()} + ${data.brains.female.n_total.toLocaleString()} neurons`;
+  mBrain.step(data.brains.male.spikes[0], true); fBrain.step(data.brains.female.spikes[0], true); drawTraces(); hud();
 }
 function loop(ts) {
   const dt = Math.min(0.1, (ts - lastT) / 1000); lastT = ts; const t = ts / 1000;
   if (data) {
     let advanced = false;
-    if (playing) { acc += dt * speed * 1000 / data.tick_ms; while (acc >= 1) { acc -= 1; tick = (tick + 1) % data.ticks; advanced = true; mView.step(data.brains.male.spikes[tick], true); fView.step(data.brains.female.spikes[tick], true); } }
-    if (!advanced) { mView.step([], false); fView.step([], false); }
-    if (advanced) { drawTraces(); hud(); }
-    mView.render(dt); fView.render(dt); aView.render(dt, t);
+    if (playing) { acc += dt * speed * 1000 / data.tick_ms; while (acc >= 1) { acc -= 1; tick = (tick + 1) % data.ticks; advanced = true; mBrain.step(data.brains.male.spikes[tick], true); fBrain.step(data.brains.female.spikes[tick], true); } }
+    if (!advanced) { mBrain.step([], false); fBrain.step([], false); } else { drawTraces(); hud(); }
+    mBrain.update(dt); fBrain.update(dt);
+    const [mx, my, mh, fx, fy, fh, sing, accpt, rej, d] = data.bodies[tick];
+    pose(male, mx, my, mh, t, sing); pose(female, fx, fy, fh, t, 0);
+    male.halo.intensity = 1 + sing * 2; female.mats[0].emissiveIntensity = 0.3 + accpt * 1.4;
+    acceptLight.position.set(fx, 1.6, -fy); acceptLight.intensity = accpt * 5; rejectLight.position.set(fx, 1.6, -fy); rejectLight.intensity = rej * 5;
+    rings.forEach((m, i) => { const ph = ((t * 0.8) + i / 5) % 1; m.position.set(mx, 0.08, -my); m.scale.setScalar(0.7 + ph * 9); m.material.opacity = sing > 0.02 ? (1 - ph) * 0.6 * Math.min(1, sing * 1.5) : 0; });
+    setTrail(trailM, 0, 1); setTrail(trailF, 3, 4);
+    // streams: sensory input up to each brain, motor commands down, song across
+    const mPos = new THREE.Vector3(mx, 1.2, -my), fPos = new THREE.Vector3(fx, 1.2, -fy);
+    const mIn = Math.min(1, sum("male", ["vision_L", "vision_R", "smell", "touch_L", "touch_R"]) / 250), fIn = Math.min(1, sum("female", ["vision_L", "vision_R", "smell", "song"]) / 250);
+    const mOut = Math.min(1, sum("male", ["turn_L", "turn_R", "forward", "song"]) / 40), fOut = Math.min(1, sum("female", ["turn_L", "turn_R", "forward", "accept", "reject"]) / 40);
+    sensM.update(dt, mPos, mBrain.bottom().add(new THREE.Vector3(-2, 0, 0)), 0.15 + mIn, 1.2); motM.update(dt, mBrain.bottom().add(new THREE.Vector3(2, 0, 0)), mPos, mOut, 1.0);
+    sensF.update(dt, fPos, fBrain.bottom().add(new THREE.Vector3(2, 0, 0)), 0.15 + fIn, 1.2); motF.update(dt, fBrain.bottom().add(new THREE.Vector3(-2, 0, 0)), fPos, fOut, 1.0);
+    song.update(dt, mPos.clone().add(new THREE.Vector3(0, 0.6, 0)), fBrain.world(fBrain.jo), sing * Math.max(0, 1 - d / 8), 2.2);
+    cva.update(dt, mPos, fBrain.bottom(), Math.max(0, 1 - d / 5) * 0.5, 1.5);
   }
-  bgC.position.x = Math.sin(t * 0.05) * 4; bgC.position.y = Math.cos(t * 0.04) * 3; bgC.lookAt(0, 0, 0); sizeTo(bgR, bgC); bgR.render(bgS, bgC);
-  requestAnimationFrame(loop);
+  if (auto) theta += dt * 0.06;
+  cam.position.set(target.x + Math.sin(theta) * Math.sin(phi) * dist, target.y + Math.cos(phi) * dist, target.z + Math.cos(theta) * Math.sin(phi) * dist); cam.lookAt(target);
+  renderer.render(scene, cam); requestAnimationFrame(loop);
 }
 $("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "❚❚ pause" : "▶ play"; };
 $("speed").onchange = e => speed = +e.target.value;
-$("scrub").oninput = e => { tick = +e.target.value; mView.glow.fill(0); fView.glow.fill(0); mView.step(data.brains.male.spikes[tick], true); fView.step(data.brains.female.spikes[tick], true); drawTraces(); hud(); };
+$("wires").onchange = e => { mBrain.wires.visible = fBrain.wires.visible = e.target.checked; };
+$("scrub").oninput = e => { tick = +e.target.value; mBrain.glow.fill(0); fBrain.glow.fill(0); mBrain.step(data.brains.male.spikes[tick], true); fBrain.step(data.brains.female.spikes[tick], true); drawTraces(); hud(); };
 $("run").innerHTML = RUNS.map(r => `<option value="${r}">${LABELS[r] || r}</option>`).join(""); $("run").onchange = e => load(e.target.value);
 load(RUNS[0]); requestAnimationFrame(loop);
 </script>

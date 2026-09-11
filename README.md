@@ -41,6 +41,32 @@ The model is only interesting if it reproduces known optogenetics. It does:
 | DNa02 drives ipsilateral turning (Rayshubskiy 2020) | left-eye LC10a input → left DNa02 only; right → right only, in both sexes |
 | Leg contact-pheromone neurons (ppk23) promote courtship pursuit | ppk23 drive → DNp09 (forward walking) |
 
+## Results (20 s episodes, both flies start 8 mm apart)
+
+| condition | ♂ P1 arousal | ♀ pC1a arousal | knockout | time within 2 mm | ♂ song DN (pIP10) | ♀ song input (JO) | ♀ active neurons / 10 ms | ♀ accept DN (vpoDN) |
+|---|---|---|---|---|---|---|---|---|
+| pure wiring | 0 | 0 | – | 26 % | 0.1 Hz | 0 Hz | 171 | 0 |
+| **courtship** | 10 Hz | 0 | – | **97 %** | **11 Hz** | **44 Hz** | **308** | 0 |
+| courtship, receptive ♀ | 10 Hz | 20 Hz | – | 27 % | 11 Hz | 39 Hz | 280 | **4.3 Hz** |
+| mute ♂ | 10 Hz | 20 Hz | ♂ pIP10 silenced | 62 % | 0 | 0 | 173 | 4.7 Hz |
+| blind ♂ | 10 Hz | 20 Hz | ♂ LC10a silenced | **0 %** | 11 Hz | 26 Hz | 168 | 4.4 Hz |
+
+What this says, in order:
+
+1. **The male finds her by sight.** Left-eye LC10a input drives only the left DNa02, right drives right, so he turns toward
+   her and closes the distance. Silence his 275 LC10a neurons and he never gets within 2 mm.
+2. **A little internal state turns him into a singer.** 10 Hz of tonic P1 drive on its own gives ~11 Hz pIP10 output; the
+   female cues add to it (state gating, as in the real fly).
+3. **His song is the channel into her brain.** With song, her whole-brain activity nearly doubles (171 → 308 active neurons
+   per 10 ms) and ~30 Fru+/Dsx+ auditory neurons light up. Mute him and her activity is back at baseline.
+4. **Her wiring alone does not say yes.** No sensory input we tried (song, continuous or pulsed at 35 ms; cVA; vision;
+   all combined) drives her pC1 or vpoDN. Song input in fact *suppresses* vpoDN slightly, consistent with the Fru+ global
+   inhibition (aSP8-like) that sharpens song tuning. Female receptivity in this model, as in the real animal, needs internal
+   state: 20 Hz of pC1a drive is enough for vpoDN to fire.
+
+So the honest one-liner is: *two real brains, wired to each other through the real channels, produce pursuit, song and
+hearing on wiring alone; consent needs a hormone the connectome does not contain.*
+
 ## Model
 
 Leaky integrate-and-fire neurons with the parameters of Shiu et al. 2024 (Nature): τm 20 ms, rest/reset −52 mV,

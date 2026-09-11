@@ -1,0 +1,35 @@
+[steer] intact 26.7; keeping only the 128 neurons that fired (+116 I/O): 26.7
+   chunks=   2 remaining=    64 tests=2 [7s]
+   chunks=   2 remaining=    64 tests=4 [10s]
+   chunks=   4 remaining=    32 tests=8 [15s]
+   chunks=   4 remaining=    24 tests=12 [21s]
+   chunks=   4 remaining=    12 tests=16 [26s]
+   chunks=   4 remaining=     9 tests=20 [32s]
+   chunks=   4 remaining=     7 tests=24 [37s]
+   chunks=   4 remaining=     5 tests=28 [43s]
+   chunks=   4 remaining=     4 tests=32 [48s]
+   chunks=   4 remaining=     4 tests=36 [54s]
+[steer] MINIMAL CIRCUIT: 120 neurons (0.086% of brain) keeps score 13.3/26.7; types: [('LC10a', 115), ('DNa02', 1), ('LAL027', 1), ('CB0359', 1), ('AOTU027', 1), ('AOTUv3B_P02', 1)]
+[escape] intact 41.7; keeping only the 298 neurons that fired (+316 I/O): 41.7
+   chunks=   2 remaining=     0 tests=2 [7s]
+[escape] MINIMAL CIRCUIT: 316 neurons (0.227% of brain) keeps score 45.0/41.7; types: [('LPLC2', 210), ('LC4', 104), ('DNp01', 2)]
+[walk] intact 5.6; keeping only the 238 neurons that fired (+240 I/O): 5.6
+   chunks=   2 remaining=   119 tests=2 [7s]
+   chunks=   2 remaining=    60 tests=4 [10s]
+   chunks=   2 remaining=    60 tests=6 [13s]
+   chunks=   4 remaining=    60 tests=10 [19s]
+   chunks=   8 remaining=    45 tests=18 [31s]
+   chunks=   8 remaining=    29 tests=26 [42s]
+   chunks=   8 remaining=    21 tests=34 [54s]
+   chunks=   8 remaining=    13 tests=42 [65s]
+   chunks=   8 remaining=    13 tests=50 [77s]
+   chunks=  13 remaining=     8 tests=63 [96s]
+   chunks=  13 remaining=     8 tests=71 [108s]
+[walk] MINIMAL CIRCUIT: 248 neurons (0.178% of brain) keeps score 2.8/5.6; types: [('LC10a', 234), ('DNa02', 2), ('DNp09', 2), ('DNa01', 2), ('LAL027', 2), ('AOTU015a', 1), ('CB2070', 1), ('CB1080', 1), ('AOTU027', 1), ('AOTU012', 1), ('AOTU026', 1)]
+[hear] intact 13.0; keeping only the 121 neurons that fired (+372 I/O): 13.0
+   chunks=   2 remaining=     0 tests=2 [7s]
+[hear] MINIMAL CIRCUIT: 372 neurons (0.267% of brain) keeps score 12.0/13.0; types: [('JO-B1_a', 106), ('JO-A5', 37), ('JO-B2', 36), ('JO-A2', 33), ('JO-B3', 29), ('JO-B1_b', 27), ('JO-B4_b', 25), ('JO-B1_c', 22), ('JO-A1', 21), ('JO-B4_a', 15), ('JO-A3', 6), ('SAD052', 3)]
+[accept] intact 30.0; keeping only the 60 neurons that fired (+4 I/O): 30.0
+   chunks=   2 remaining=     0 tests=2 [6s]
+[accept] MINIMAL CIRCUIT: 4 neurons (0.003% of brain) keeps score 30.0/30.0; types: [('pC1a', 2), ('DNp37', 2)]
+done

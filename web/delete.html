@@ -61,22 +61,26 @@ function resize() { renderer.setSize(innerWidth, innerHeight, false); cam.aspect
 const VS = `uniform float uPx; attribute float aSize; attribute vec3 aColor; attribute float aAlpha; varying vec3 vC; varying float vA;
 void main(){ vC=aColor; vA=aAlpha; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uPx*(130.0/-mv.z); gl_Position=projectionMatrix*mv; }`;
 const FS = `varying vec3 vC; varying float vA; void main(){ if(vA<=0.0) discard; float d=length(gl_PointCoord-0.5); if(d>0.5) discard; float a=smoothstep(0.5,0.15,d)*vA; gl_FragColor=vec4(vC,a); }`;
-let pts, N = 0, meta, worker;
+let pts, N = 0, meta, workers = [];
 let keep, alpha, size, color, glow, dying;      // per-neuron state
 const rig = new THREE.Group(); scene.add(rig);
 
 /* ---------- worker ---------- */
-function ask(msg) { return new Promise(res => { const h = e => { if (e.data.type === msg.want) { worker.removeEventListener("message", h); res(e.data); } }; worker.addEventListener("message", h); worker.postMessage(msg); }); }
-async function setKeep(nk) { for (let i = 0; i < N; i++) if (keep[i] && !nk[i]) dying[i] = 1; keep = nk; const r = await ask({ type: "keep", keep, want: "keepok" }); $("alive").textContent = r.alive.toLocaleString(); $("syn").textContent = (r.syn / 1e6).toFixed(1) + "M"; $("pct").textContent = (r.alive / N * 100).toFixed(r.alive / N < 0.01 ? 2 : 0) + "%"; }
+function ask(w, msg) { return new Promise(res => { const h = e => { if (e.data.type === msg.want) { w.removeEventListener("message", h); res(e.data); } }; w.addEventListener("message", h); w.postMessage(msg); }); }
+async function setKeep(nk) { for (let i = 0; i < N; i++) if (keep[i] && !nk[i]) dying[i] = 1; keep = nk;
+  const rs = await Promise.all(workers.map(w => ask(w, { type: "keep", keep: Uint8Array.from(keep), want: "keepok" }))); const r = rs[0];
+  $("alive").textContent = r.alive.toLocaleString(); $("syn").textContent = (r.syn / 1e6).toFixed(1) + "M"; $("pct").textContent = (r.alive / N * 100).toFixed(r.alive / N < 0.01 ? 2 : 0) + "%"; }
 let base = null, play = null;
 async function runTests() {
-  for (const k of Object.keys(meta.assays)) { const a = meta.assays[k];
-    const r = await ask({ type: "assay", key: k, inp: a.inp, hz: a.hz, out: a.out, mode: a.mode, tMs: 300, seed: 3, binMs: 10, want: "result" });
-    if (!base) base = {}; if (base[k] === undefined) base[k] = r.score; const pct = base[k] > 0 ? r.score / base[k] : 0;
+  const keys = Object.keys(meta.assays);
+  const rs = await Promise.all(keys.map((k, i) => { const a = meta.assays[k]; return ask(workers[i], { type: "assay", key: k, inp: a.inp, hz: a.hz, out: a.out, mode: a.mode, tMs: 200, seed: 3, binMs: 10, want: "result" }); }));
+  if (!base) base = {};
+  const merged = []; for (let b = 0; b < 20; b++) merged.push([]);
+  rs.forEach((r, i) => { const k = keys[i]; if (base[k] === undefined) base[k] = r.score; const pct = base[k] > 0 ? r.score / base[k] : 0;
     const el = $("bar-" + k); el.querySelector(".fil").style.width = Math.min(100, pct * 100) + "%"; el.querySelector(".fil").style.background = pct > 0.5 ? "var(--accent)" : pct > 0.2 ? "#e0b341" : "var(--del)";
     el.querySelector(".val").textContent = Math.round(pct * 100) + "%"; el.querySelector(".sub").textContent = `${CAP[k][1]} · ${r.fired.toLocaleString()} neurons fired`;
-    await new Promise(res => { play = { bins: r.bins, i: 0, t: 0, done: res }; });
-  }
+    r.bins.forEach((b, j) => { if (j < 20) for (const n of b) merged[j].push(n); }); });
+  await new Promise(res => { play = { bins: merged, i: 0, t: 0, done: res }; });
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function rnd(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
@@ -98,17 +102,17 @@ const STORY = [
 async function story() {
   for (let s = 0; ; s = (s + 1) % STORY.length) {
     const st = STORY[s]; $("stepN").textContent = String(s + 1).padStart(2, "0") + " / " + String(STORY.length).padStart(2, "0");
-    $("stepT").style.opacity = 0; await sleep(250); $("stepT").textContent = st.t; $("stepP").textContent = st.p; $("stepT").style.opacity = 1;
+    $("stepT").style.opacity = 0; await sleep(150); $("stepT").textContent = st.t; $("stepP").textContent = st.p; $("stepT").style.opacity = 1;
     $("prog").style.width = ((s + 1) / STORY.length * 100) + "%";
-    await setKeep(st.keep()); await sleep(900); await runTests(); await sleep(s === 0 ? 800 : 1400);
+    await setKeep(st.keep()); await sleep(s === 0 ? 150 : 450); await runTests(); await sleep(350);
   }
 }
 
 /* ---------- boot ---------- */
 async function boot() {
   const [buf, m] = await Promise.all([fetch("data/flywire_net.bin").then(r => r.arrayBuffer()), fetch("data/flywire_meta.json").then(r => r.json())]);
-  meta = m; N = m.N; worker = new Worker("lif-worker.js");
-  const loaded = ask({ type: "load", buf, params: Object.assign({}, m.params, { dt: 0.2 }), want: "loaded" }); worker.postMessage; const d = await loaded; build(d.pos);
+  meta = m; N = m.N; const nA = Object.keys(m.assays).length; workers = Array.from({ length: nA }, () => new Worker("lif-worker.js"));
+  const ds = await Promise.all(workers.map((w, i) => { const b = i === nA - 1 ? buf : buf.slice(0); return ask(w, { type: "load", buf: b, params: Object.assign({}, m.params, { dt: 0.2 }), want: "loaded" }); })); build(ds[0].pos);
   $("bars").innerHTML = Object.keys(meta.assays).map(k => `<div class="bar" id="bar-${k}"><div class="lab"><span>${CAP[k][0]}</span><b class="val">—</b></div><div class="trk"><div class="fil"></div></div><div class="sub">${CAP[k][1]}</div></div>`).join("");
   story();
 }
@@ -131,10 +135,10 @@ function loop(ts) {
   const dt = Math.min(0.1, (ts - lastT) / 1000); lastT = ts;
   if (pts) {
     const { ok, baseA, baseS, baseC } = pts.userData;
-    if (play) { play.t += dt; while (play.i < play.bins.length && play.t > play.i * 0.04) { for (const i of play.bins[play.i]) glow[i] = 1; play.i++; } if (play.i >= play.bins.length && play.t > play.bins.length * 0.04 + 0.5) { play.done(); play = null; } }
+    if (play) { play.t += dt; while (play.i < play.bins.length && play.t > play.i * 0.025) { for (const i of play.bins[play.i]) glow[i] = 1; play.i++; } if (play.i >= play.bins.length && play.t > play.bins.length * 0.025 + 0.3) { play.done(); play = null; } }
     for (let i = 0; i < N; i++) {
       if (!ok[i]) continue;
-      if (!keep[i]) { const d = dying[i]; if (d > 0) { dying[i] = Math.max(0, d - dt * 1.4); color[3*i] = COL.del.r; color[3*i+1] = COL.del.g; color[3*i+2] = COL.del.b; alpha[i] = d * 0.9; size[i] = 1.2 + 3 * d; } else if (alpha[i] !== 0) alpha[i] = 0; continue; }
+      if (!keep[i]) { const d = dying[i]; if (d > 0) { dying[i] = Math.max(0, d - dt * 2.2); color[3*i] = COL.del.r; color[3*i+1] = COL.del.g; color[3*i+2] = COL.del.b; alpha[i] = d * 0.9; size[i] = 1.2 + 3 * d; } else if (alpha[i] !== 0) alpha[i] = 0; continue; }
       const g = glow[i];
       if (g > 0.01) { glow[i] = g * (1 - dt * 4.5); color[3*i] = baseC[3*i] + (COL.fire.r - baseC[3*i]) * g; color[3*i+1] = baseC[3*i+1] + (COL.fire.g - baseC[3*i+1]) * g; color[3*i+2] = baseC[3*i+2] + (COL.fire.b - baseC[3*i+2]) * g; alpha[i] = baseA[i] + (1 - baseA[i]) * g; size[i] = baseS[i] + 5 * g; }
       else if (alpha[i] !== baseA[i]) { alpha[i] = baseA[i]; size[i] = baseS[i]; color[3*i] = baseC[3*i]; color[3*i+1] = baseC[3*i+1]; color[3*i+2] = baseC[3*i+2]; }

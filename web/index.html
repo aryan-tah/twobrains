@@ -22,7 +22,7 @@
   button { background:#1a1d2b; color:var(--ink); border:1px solid #2a2e40; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px }
   button:hover { background:#232738 }
   input[type=range] { width:320px }
-  .legend { position:absolute; right:10px; bottom:8px; font-size:11px; color:var(--dim); z-index:2; display:flex; flex-wrap:wrap; gap:4px 10px; max-width:70% }
+  .legend { position:absolute; right:10px; top:8px; justify-content:flex-end; font-size:11px; color:var(--dim); z-index:2; display:flex; flex-wrap:wrap; gap:4px 10px; max-width:70% }
   .legend i { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle }
   .hud { position:absolute; left:12px; bottom:10px; font-size:12px; color:var(--dim); z-index:2; line-height:1.5 }
   .hud b { color:var(--ink) }
@@ -49,7 +49,7 @@
   <span id="status"></span>
 </div>
 <script>
-const RUNS = (window.TWOBRAINS_RUNS || ["aroused", "baseline"]);
+const RUNS = (window.TWOBRAINS_RUNS || ["aroused", "baseline", "no_song", "both_aroused"]);
 const GROUP_COLORS = ["#3a3f52", "#ffd166", "#ff8c42", "#4aa3ff", "#9b5cff", "#2ee6a6", "#ff5fa2", "#c8ff5c"];
 const AXES = { male: [0, 2], female: [0, 1] };   // soma projection axes per brain (x lateral; male shows brain + nerve cord)
 let data = null, tick = 0, playing = false, speed = 1, acc = 0, lastT = 0;
@@ -77,18 +77,18 @@ async function load(name) {
 function drawBrain(who) {
   const c = $(who[0] + "Brain"), [g, W, H] = fit(c), b = data.brains[who], gl = glow[who];
   g.fillStyle = "#0e1017"; g.fillRect(0, 0, W, H);
-  const pad = 24, sw = W - 2 * pad, sh = H - 2 * pad - 30;
+  const pad = 24, sw = W - 2 * pad, sh = H - 2 * pad - 60;
   // decay + spikes this tick
   for (let i = 0; i < gl.length; i++) gl[i] *= 0.72;
   for (const i of b.spikes[tick]) gl[i] = 1;
   // background neurons
   for (let i = 0; i < b.n_display; i++) {
-    const p = b._norm[i], x = pad + p[0] * sw, y = pad + 30 + p[1] * sh, grp = b.group[i], a = gl[i];
+    const p = b._norm[i], x = pad + p[0] * sw, y = pad + 44 + p[1] * sh, grp = b.group[i], a = gl[i];
     if (a < 0.03 && grp === 0) { g.fillStyle = "rgba(90,96,120,0.28)"; g.fillRect(x, y, 1.2, 1.2); continue; }
-    const col = GROUP_COLORS[grp], r = grp ? 2.2 + 3 * a : 1.2 + 2.5 * a;
-    g.globalAlpha = grp ? 0.55 + 0.45 * a : 0.25 + 0.75 * a;
+    const col = GROUP_COLORS[grp], r = grp ? 1.6 + 2.2 * a : 1.0 + 1.6 * a;
+    g.globalAlpha = grp ? 0.35 + 0.65 * a : 0.2 + 0.8 * a;
     g.fillStyle = grp ? col : "#dfe6ff"; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
-    if (a > 0.5) { g.globalAlpha = 0.25 * a; g.beginPath(); g.arc(x, y, r * 3, 0, 6.283); g.fill(); }
+    if (a > 0.5) { g.globalAlpha = 0.18 * a; g.beginPath(); g.arc(x, y, r * 3.5, 0, 6.283); g.fill(); }
     g.globalAlpha = 1;
   }
   const s = data.series[who], f = k => (s[k] ? s[k][tick] : 0).toFixed(0);

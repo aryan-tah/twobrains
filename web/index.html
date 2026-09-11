@@ -22,7 +22,7 @@
   .legend i { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px; vertical-align:middle; box-shadow:0 0 6px currentColor }
   .hud { font-size:12px; color:var(--dim); line-height:1.6; margin-top:6px }
   .hud b { color:var(--ink); font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums }
-  #mCard { left:22px; top:96px } #fCard { right:22px; top:96px; text-align:right } #fCard .legend { justify-content:flex-end }
+  #mCard { left:22px; bottom:196px } #fCard { right:22px; bottom:196px; text-align:right } #fCard .legend { justify-content:flex-end }
   #aCard { left:50%; transform:translateX(-50%); bottom:196px; text-align:center }
   #aCard .hud { margin-top:2px }
   #traces { position:fixed; left:12px; right:12px; bottom:56px; height:128px; z-index:2; background:rgba(6,8,18,.5); border:1px solid rgba(90,100,150,.18); border-radius:12px; backdrop-filter:blur(6px) }
@@ -33,7 +33,7 @@
   input[type=range] { width:300px; accent-color:var(--male) }
   #time, #status { font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums }
   #status { margin-left:auto }
-  .hint { position:fixed; right:22px; bottom:196px; z-index:2; font-size:11px; color:rgba(138,144,168,.7); pointer-events:none }
+  .hint { position:fixed; right:22px; top:18px; z-index:2; font-size:11px; color:rgba(138,144,168,.7); pointer-events:none }
   @media (max-width:900px) { #mCard, #fCard { display:none } .sub { display:none } input[type=range] { width:140px } }
   @media (prefers-reduced-motion:reduce) { * { animation:none !important } }
 </style>
@@ -69,7 +69,7 @@ const renderer = new THREE.WebGLRenderer({ canvas: $("view"), antialias: true, a
 renderer.setPixelRatio(PR); renderer.setClearColor(0x03040a, 1); renderer.shadowMap.enabled = true;
 const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x03040a, 0.0085);
 const cam = new THREE.PerspectiveCamera(40, 1, 0.1, 500);
-let theta = 0.35, phi = 1.02, dist = 62, auto = true; const target = new THREE.Vector3(0, 6, 0);
+let theta = 0.25, phi = 1.05, dist = 66, auto = true; const target = new THREE.Vector3(0, 5.5, -2);
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
 addEventListener("resize", resize); resize();
 { let down = false, lx = 0, ly = 0; const el = $("view");
@@ -83,7 +83,7 @@ const pointVS = `uniform float uPx; attribute float aSize; attribute vec3 aColor
 void main(){ vColor=aColor; vGlow=aGlow; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uPx*(120.0/-mv.z); gl_Position=projectionMatrix*mv; }`;
 const pointFS = `varying vec3 vColor; varying float vGlow;
 void main(){ float d=length(gl_PointCoord-0.5); if(d>0.5) discard; float core=smoothstep(0.5,0.08,d); float halo=smoothstep(0.5,0.0,d)*0.4;
-  float a=mix(0.2,1.0,vGlow)*(core+halo*vGlow); gl_FragColor=vec4(vColor*(0.8+0.9*vGlow), a); }`;
+  float a=mix(0.085,1.0,vGlow)*(core+halo*vGlow); gl_FragColor=vec4(vColor*(0.8+0.9*vGlow), a); }`;
 function makePoints(n) {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
@@ -148,52 +148,57 @@ const acceptLight = new THREE.PointLight(0x2ee6a6, 0, 10); scene.add(acceptLight
 /* ---------- brains ---------- */
 class Brain {
   constructor(who, x) {
-    this.who = who; this.rig = new THREE.Group(); this.rig.position.set(x, 13.5, -4); scene.add(this.rig); this.spin = who === "male" ? 0.3 : -0.3;
-    this.label = new THREE.PointLight(who === "male" ? 0x4aa3ff : 0xff5fa2, 0.5, 40); this.label.position.set(x, 13.5, 4); scene.add(this.label);
+    this.who = who; this.rig = new THREE.Group(); this.rig.position.set(x, 11.5, -6); scene.add(this.rig); this.spin = who === "male" ? 0.3 : -0.3;
+    this.label = new THREE.PointLight(who === "male" ? 0x4aa3ff : 0xff5fa2, 0.5, 40); this.label.position.set(x, 11.5, 2); scene.add(this.label);
   }
   load(b) {
     if (this.pts) { this.rig.remove(this.pts); this.rig.remove(this.wires); }
-    const n = b.n_display, pts = makePoints(n), pos = pts.geometry.attributes.position.array;
-    const P = b.pos.map(p => this.who === "male" ? [p[0], -p[2], p[1]] : [p[0], -p[1], p[2]]);
+    // male: show the brain only (the nerve cord sits below z = 420 um and would turn the cloud into a tall stalk)
+    const keepIdx = this.who === "male" ? b.pos.map((p, i) => p[2] < 420 ? i : -1).filter(i => i >= 0) : b.pos.map((_, i) => i);
+    const remap = new Int32Array(b.pos.length).fill(-1); keepIdx.forEach((v, i) => remap[v] = i); this.remap = remap;
+    const n = keepIdx.length, pts = makePoints(n), pos = pts.geometry.attributes.position.array;
+    const P = keepIdx.map(i => { const p = b.pos[i]; return this.who === "male" ? [p[0], -p[2], p[1]] : [p[0], -p[1], p[2]]; });
+    const group = keepIdx.map(i => b.group[i]);
     const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9]; for (const p of P) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], p[k]); mx[k] = Math.max(mx[k], p[k]); }
-    const ctr = mn.map((v, k) => (v + mx[k]) / 2), scale = 20 / Math.max(mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]);
+    const ctr = mn.map((v, k) => (v + mx[k]) / 2), scale = 24 / (mx[0] - mn[0]);   // both brains to the same width
     this.local = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) pos[3*i+k] = this.local[3*i+k] = (P[i][k] - ctr[k]) * scale;
-    this.base = new Float32Array(n * 3); this.hot = new Float32Array(n * 3); this.grp = b.group; this.glow = new Float32Array(n); this.n = n;
-    const dim = this.who === "male" ? hex("#3d5a8a") : hex("#8a3d66"), white = hex("#ffffff");
-    for (let i = 0; i < n; i++) { const g = b.group[i], c = g ? hex(GROUP_COLORS[g]).multiplyScalar(0.7) : dim, h = g ? hex(GROUP_COLORS[g]) : white; this.base.set([c.r, c.g, c.b], 3*i); this.hot.set([h.r, h.g, h.b], 3*i); }
+    this.base = new Float32Array(n * 3); this.hot = new Float32Array(n * 3); this.grp = group; this.glow = new Float32Array(n); this.n = n;
+    const dim = this.who === "male" ? hex("#2b4a80") : hex("#7a2f58"), white = hex("#ffffff");
+    for (let i = 0; i < n; i++) { const g = group[i], c = g ? hex(GROUP_COLORS[g]).multiplyScalar(0.5) : dim, h = g ? hex(GROUP_COLORS[g]) : white; this.base.set([c.r, c.g, c.b], 3*i); this.hot.set([h.r, h.g, h.b], 3*i); }
     pts.geometry.attributes.aColor.array.set(this.base);
-    const sz = pts.geometry.attributes.aSize.array; for (let i = 0; i < n; i++) sz[i] = b.group[i] ? 2.2 : 1.35;
+    const sz = pts.geometry.attributes.aSize.array; for (let i = 0; i < n; i++) sz[i] = group[i] ? 2.0 : 1.25;
     this.pts = pts; this.rig.add(pts);
     // wiring layer: strongest connections among displayed neurons
-    const E = b.edges, m = E.length, wp = new Float32Array(m * 6), wc = new Float32Array(m * 6);
+    const E = [], esign = []; b.edges.forEach((e, k) => { const a = remap[e[0]], c = remap[e[1]]; if (a >= 0 && c >= 0) { E.push([a, c]); esign.push(b.esign[k]); } });
+    const m = E.length, wp = new Float32Array(m * 6), wc = new Float32Array(m * 6);
     for (let e = 0; e < m; e++) { const a = E[e][0], c = E[e][1]; wp.set(this.local.subarray(3*a, 3*a+3), 6*e); wp.set(this.local.subarray(3*c, 3*c+3), 6*e+3); }
     const wg = new THREE.BufferGeometry(); wg.setAttribute("position", new THREE.BufferAttribute(wp, 3)); wg.setAttribute("color", new THREE.BufferAttribute(wc, 3));
     this.wires = new THREE.LineSegments(wg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false })); this.wires.frustumCulled = false; this.rig.add(this.wires);
-    this.edges = E; this.esign = b.esign; this.wc = wc;
+    this.edges = E; this.esign = esign; this.wc = wc;
     this.exc = this.who === "male" ? [0.45, 0.62, 1.0] : [1.0, 0.5, 0.72]; this.inh = [0.95, 0.35, 0.45];
     // centroid of the hearing (JO) population, for the song stream target
     const gi = b.groups.indexOf("hearing (JO)"); let cx = 0, cy = 0, cz = 0, k = 0;
-    for (let i = 0; i < n; i++) if (b.group[i] === gi) { cx += this.local[3*i]; cy += this.local[3*i+1]; cz += this.local[3*i+2]; k++; }
+    for (let i = 0; i < n; i++) if (group[i] === gi) { cx += this.local[3*i]; cy += this.local[3*i+1]; cz += this.local[3*i+2]; k++; }
     this.jo = new THREE.Vector3(cx / Math.max(1, k), cy / Math.max(1, k), cz / Math.max(1, k));
     this.step([], true);
   }
   step(spikes, advance) {
     const g = this.glow, col = this.pts.geometry.attributes.aColor.array, sz = this.pts.geometry.attributes.aSize.array, ga = this.pts.geometry.attributes.aGlow.array;
-    if (advance) { for (let i = 0; i < this.n; i++) g[i] *= 0.72; for (const i of spikes) g[i] = 1; }
-    for (let i = 0; i < this.n; i++) { const a = g[i], grp = this.grp[i]; ga[i] = a; sz[i] = (grp ? 2.2 : 1.35) + a * (grp ? 5 : 3.5);
+    if (advance) { for (let i = 0; i < this.n; i++) g[i] *= 0.72; for (const s of spikes) { const i = this.remap[s]; if (i >= 0) g[i] = 1; } }
+    for (let i = 0; i < this.n; i++) { const a = g[i], grp = this.grp[i]; ga[i] = a; sz[i] = (grp ? 2.0 : 1.25) + a * (grp ? 5 : 3.5);
       col[3*i] = this.base[3*i] + (this.hot[3*i] - this.base[3*i]) * a; col[3*i+1] = this.base[3*i+1] + (this.hot[3*i+1] - this.base[3*i+1]) * a; col[3*i+2] = this.base[3*i+2] + (this.hot[3*i+2] - this.base[3*i+2]) * a; }
     this.pts.geometry.attributes.aColor.needsUpdate = true; this.pts.geometry.attributes.aSize.needsUpdate = true; this.pts.geometry.attributes.aGlow.needsUpdate = true;
-    if (this.wires.visible) { const E = this.edges, wc = this.wc, base = 0.006;
-      for (let e = 0; e < E.length; e++) { const a = g[E[e][0]], c = this.esign[e] ? this.exc : this.inh, k = base + a * 0.75, k2 = base * 0.5 + a * 0.3;
+    if (this.wires.visible) { const E = this.edges, wc = this.wc, base = 0.0035;
+      for (let e = 0; e < E.length; e++) { const a = g[E[e][0]], c = this.esign[e] ? this.exc : this.inh, k = base + a * 0.55, k2 = base * 0.5 + a * 0.22;
         wc[6*e] = c[0] * k; wc[6*e+1] = c[1] * k; wc[6*e+2] = c[2] * k; wc[6*e+3] = c[0] * k2; wc[6*e+4] = c[1] * k2; wc[6*e+5] = c[2] * k2; }
       this.wires.geometry.attributes.color.needsUpdate = true; }
   }
   update(dt) { this.rig.rotation.y += dt * 0.10 * this.spin; }
   world(v) { return this.rig.localToWorld(v.clone()); }
-  bottom() { return new THREE.Vector3(this.rig.position.x, this.rig.position.y - 9, this.rig.position.z); }
+  bottom() { return new THREE.Vector3(this.rig.position.x, this.rig.position.y - 6.5, this.rig.position.z); }
 }
-const mBrain = new Brain("male", -22), fBrain = new Brain("female", 22);
+const mBrain = new Brain("male", -19), fBrain = new Brain("female", 19);
 
 /* ---------- streams: particles flowing along curves ---------- */
 class Stream {

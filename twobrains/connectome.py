@@ -31,7 +31,7 @@ class Connectome:
     def select(self, type_regex: str | None = None, side: str | None = None, **eq) -> np.ndarray:
         m = np.ones(self.N, bool)
         if type_regex:
-            m &= self.meta["type"].fillna("").str.contains(type_regex, regex=True).values
+            m &= self.meta["type"].fillna("").str.contains(type_regex, regex=True) if not any(c in type_regex for c in "(|") else self.meta["type"].fillna("").str.match(type_regex).values
         if side:
             m &= (self.meta["side"].fillna("") == side).values
         for k, v in eq.items():
@@ -77,7 +77,7 @@ def build_malecns():
     ann = ann[keep].copy()
     meta = pd.DataFrame({
         "id": ann.bodyId.values, "type": ann.type.values, "flywire_type": ann.flywireType.values,
-        "superclass": ann.superclass.values, "cls": ann["class"].values, "side": ann.somaSide.values,
+        "superclass": ann.superclass.values, "cls": ann["class"].values, "side": ann.somaSide.fillna(ann.rootSide).values,
         "nt": ann.consensus_nt.values, "dimorphism": ann.dimorphism.values, "fru_dsx": ann.fruDsx.values,
         "receptor": ann.receptorType.values, "instance": ann.instance.values,
     })

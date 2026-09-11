@@ -30,6 +30,8 @@ SMELL_RANGE = 5.0   # mm   volatile pheromone (Or47b/ORN_VA1v) plume
 TOUCH_RANGE = 1.2   # mm   contact pheromone (ppk23 leg gustatory, 7,11-HD)
 SONG_RANGE = 8.0    # mm   pulse song audible range (JO-A/B)
 MAX_RATE = 150.0    # Hz   Poisson rate at full stimulus
+FULL_RATE = 30.0    # Hz   descending-neuron rate that maps to a full-strength command
+MOTOR_TAU = 100.0   # ms   descending-neuron read-out is low-pass filtered (spike counts over 10 ms are too coarse)
 
 
 def _wrap(a):  # degrees -> [-180, 180)
@@ -103,6 +105,7 @@ class Fly:
         self.watch = {k: v for k, v in {**self.sense, **self.motor,
                       "P1": s(r"^pC1_") if sex == "male" else s(r"^pC1[a-e]$")}.items() if v.size}
         self._counts = np.zeros(conn.N, np.int64)
+        self._ema: dict[str, float] = {}
         self.spike_log: list[np.ndarray] = []      # per tick: indices of neurons that spiked (full resolution)
 
     # ------------------------------------------------------------------------------------
@@ -146,13 +149,16 @@ class Fly:
     def act(self, out: dict[str, float]):
         """Map motor neuron spike counts (per 10 ms, mean over population) to body commands."""
         b = self.body
-        rate = lambda k: out.get(k, 0.0) * (1000.0 / TICK_MS)          # -> Hz
-        b.turn = float(np.clip((rate("turn_L") - rate("turn_R")) / 100.0, -1, 1)) * MAX_TURN
+        alpha = TICK_MS / MOTOR_TAU
+        for k in self.motor:
+            self._ema[k] = (1 - alpha) * self._ema.get(k, 0.0) + alpha * out.get(k, 0.0) * (1000.0 / TICK_MS)
+        rate = lambda k: self._ema.get(k, 0.0)                          # smoothed Hz
+        b.turn = float(np.clip((rate("turn_L") - rate("turn_R")) / FULL_RATE, -1, 1)) * MAX_TURN
         # forward drive: DNp09 (forward walking) plus bilateral DNa02 activity (turning-while-walking)
-        b.speed = float(np.clip((rate("forward") + 0.5 * (rate("turn_L") + rate("turn_R"))) / 100.0, 0, 1)) * MAX_SPEED
-        b.singing = float(np.clip(rate("song") / 100.0, 0, 1))
-        b.accept = float(np.clip(rate("accept") / 100.0, 0, 1))
-        b.reject = float(np.clip(rate("reject") / 100.0, 0, 1))
+        b.speed = float(np.clip((rate("forward") + 0.5 * (rate("turn_L") + rate("turn_R"))) / FULL_RATE, 0, 1)) * MAX_SPEED
+        b.singing = float(np.clip(rate("song") / FULL_RATE, 0, 1))
+        b.accept = float(np.clip(rate("accept") / FULL_RATE, 0, 1))
+        b.reject = float(np.clip(rate("reject") / FULL_RATE, 0, 1))
 
 
 class Arena:

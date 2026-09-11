@@ -4,12 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TwoBrains</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   :root { --bg:#07080c; --panel:#0e1017; --ink:#e8e9ef; --dim:#7a7f92; --male:#4aa3ff; --female:#ff5fa2; --song:#ffd166; --accept:#2ee6a6; --reject:#ff4d4d; }
   * { box-sizing:border-box }
-  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 -apple-system, "Inter", system-ui, sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 "IBM Plex Sans", -apple-system, system-ui, sans-serif; }
   header { display:flex; align-items:baseline; gap:16px; padding:14px 20px 6px; }
-  header h1 { margin:0; font-size:20px; letter-spacing:.3px }
+  header h1 { margin:0; font-size:20px; letter-spacing:.3px; font-weight:600 }
+  @media (max-width: 900px) { #grid { grid-template-columns:1fr } .brain, .arena { height:360px } input[type=range] { width:160px } }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important } }
   header .sub { color:var(--dim); font-size:13px }
   #grid { display:grid; grid-template-columns: 1fr 1.15fr 1fr; gap:10px; padding:0 12px; }
   .panel { background:var(--panel); border:1px solid #1b1e2a; border-radius:12px; position:relative; overflow:hidden }
@@ -22,10 +25,12 @@
   button { background:#1a1d2b; color:var(--ink); border:1px solid #2a2e40; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px }
   button:hover { background:#232738 }
   input[type=range] { width:320px }
-  .legend { position:absolute; right:10px; top:8px; justify-content:flex-end; font-size:11px; color:var(--dim); z-index:2; display:flex; flex-wrap:wrap; gap:4px 10px; max-width:70% }
+  .legend { position:absolute; right:10px; top:30px; justify-content:flex-end; font-size:11px; color:var(--dim); z-index:2; display:flex; flex-wrap:wrap; gap:4px 10px; max-width:70% }
   .legend i { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle }
   .hud { position:absolute; left:12px; bottom:10px; font-size:12px; color:var(--dim); z-index:2; line-height:1.5 }
-  .hud b { color:var(--ink) }
+  .hud b { color:var(--ink); font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums }
+  #time, #status { font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums }
+  .panel h2 small, .legend, .hud { letter-spacing:.01em }
   #status { margin-left:auto }
 </style>
 </head>
@@ -49,7 +54,7 @@
   <span id="status"></span>
 </div>
 <script>
-const RUNS = (window.TWOBRAINS_RUNS || ["aroused", "baseline", "no_song", "both_aroused"]);
+const RUNS = (window.TWOBRAINS_RUNS || ["courtship_both", "courtship", "baseline", "no_song", "blind"]);
 const GROUP_COLORS = ["#3a3f52", "#ffd166", "#ff8c42", "#4aa3ff", "#9b5cff", "#2ee6a6", "#ff5fa2", "#c8ff5c"];
 const AXES = { male: [0, 2], female: [0, 1] };   // soma projection axes per brain (x lateral; male shows brain + nerve cord)
 let data = null, tick = 0, playing = false, speed = 1, acc = 0, lastT = 0;
@@ -138,7 +143,8 @@ function loop(ts) {
 $("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "❚❚ pause" : "▶ play"; };
 $("speed").onchange = e => speed = +e.target.value;
 $("scrub").oninput = e => { tick = +e.target.value; for (const w of ["male", "female"]) glow[w].fill(0); draw(); };
-$("run").innerHTML = RUNS.map(r => `<option>${r}</option>`).join(""); $("run").onchange = e => load(e.target.value);
+const LABELS = { courtship_both: "courtship · receptive ♀", courtship: "courtship · unreceptive ♀", baseline: "pure wiring, no arousal", no_song: "mute ♂ (pIP10 silenced)", blind: "blind ♂ (LC10a silenced)" };
+$("run").innerHTML = RUNS.map(r => `<option value="${r}">${LABELS[r] || r}</option>`).join(""); $("run").onchange = e => load(e.target.value);
 addEventListener("resize", draw);
 load(RUNS[0]); requestAnimationFrame(loop);
 </script>

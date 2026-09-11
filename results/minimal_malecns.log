@@ -37,3 +37,7 @@
    chunks=  32 remaining=    27 tests=309 [528s]
    chunks=  32 remaining=    27 tests=336 [572s]
 [walk] MINIMAL CIRCUIT: 302 neurons (0.183% of brain) keeps score 1.1/2.2; types: [('LgLG1a', 136), ('WG4', 96), ('LgLG7', 21), ('LgLG6', 16), ('DNa02', 2), ('DNa01', 2), ('DNp09', 2), ('AVLP157', 2), ('CB2659', 2), ('AVLP488', 2), ('IN23B007', 2), ('IN17A013', 2)]
+[song] intact 40.0; keeping only the 2047 neurons that fired (+150 I/O): 40.0
+   chunks=   2 remaining=     0 tests=2 [8s]
+[song] MINIMAL CIRCUIT: 150 neurons (0.091% of brain) keeps score 43.3/40.0; types: [('pC1_16b', 8), ('pC1_1a', 7), ('pC1_19', 7), ('pC1_4a', 6), ('pC1_6a', 6), ('pC1_14a', 6), ('pC1_16a', 5), ('pC1_17b', 5), ('pC1_12b', 4), ('pC1_18b', 4), ('pC1_2a', 4), ('pC1_9a', 4)]
+done

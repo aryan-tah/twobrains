@@ -1,0 +1,488 @@
+{
+ "brain": "flywire",
+ "N": 139248,
+ "assays": {
+  "steer": "steer toward target (left eye \u2192 left DNa02)",
+  "escape": "escape (looming LPLC2/LC4 \u2192 giant fiber DNp01)",
+  "walk": "walk forward (touch/leg input \u2192 DNp09/DNa01)",
+  "hear": "hear song (JO-A/B \u2192 Fru+/Dsx+ auditory neurons)",
+  "accept": "accept (pC1a \u2192 vpoDN)"
+ },
+ "intact": {
+  "steer": 26.666666666666668,
+  "escape": 41.66666666666667,
+  "walk": 5.555555555555556,
+  "hear": 13.0,
+  "accept": 30.0
+ },
+ "random": [
+  {
+   "frac": 0,
+   "seed": 0,
+   "removed": 0,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.01,
+   "seed": 0,
+   "removed": 1392,
+   "steer": 1.0,
+   "escape": 1.04,
+   "walk": 0.8999999999999999,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.01,
+   "seed": 1,
+   "removed": 1392,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.8086785009861933,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.01,
+   "seed": 2,
+   "removed": 1392,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 0.8999999999999999,
+   "hear": 0.8481262327416174,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.02,
+   "seed": 0,
+   "removed": 2784,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.8999999999999999,
+   "hear": 0.8875739644970415,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.02,
+   "seed": 1,
+   "removed": 2784,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 1.0999999999999999,
+   "hear": 0.7889546351084813,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.02,
+   "seed": 2,
+   "removed": 2784,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 1.0999999999999999,
+   "hear": 0.8678500986193295,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.05,
+   "seed": 0,
+   "removed": 6962,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.8678500986193295,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.05,
+   "seed": 1,
+   "removed": 6962,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0999999999999999,
+   "hear": 0.7889546351084813,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.05,
+   "seed": 2,
+   "removed": 6962,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.8481262327416174,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.1,
+   "seed": 0,
+   "removed": 13924,
+   "steer": 0.875,
+   "escape": 1.04,
+   "walk": 1.0999999999999999,
+   "hear": 0.8875739644970415,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.1,
+   "seed": 1,
+   "removed": 13924,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 1.0999999999999999,
+   "hear": 0.7889546351084813,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.1,
+   "seed": 2,
+   "removed": 13924,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.8678500986193295,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.2,
+   "seed": 0,
+   "removed": 27849,
+   "steer": 0.75,
+   "escape": 1.04,
+   "walk": 1.0,
+   "hear": 0.9072978303747535,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.2,
+   "seed": 1,
+   "removed": 27849,
+   "steer": 1.0,
+   "escape": 1.04,
+   "walk": 1.0,
+   "hear": 0.8086785009861933,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.2,
+   "seed": 2,
+   "removed": 27849,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 0.7999999999999999,
+   "hear": 0.8678500986193295,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.3,
+   "seed": 0,
+   "removed": 41774,
+   "steer": 0.75,
+   "escape": 1.04,
+   "walk": 1.2,
+   "hear": 0.9072978303747535,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.3,
+   "seed": 1,
+   "removed": 41774,
+   "steer": 1.0,
+   "escape": 1.04,
+   "walk": 1.0,
+   "hear": 0.8284023668639053,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.3,
+   "seed": 2,
+   "removed": 41774,
+   "steer": 0.875,
+   "escape": 1.04,
+   "walk": 0.7999999999999999,
+   "hear": 0.8284023668639053,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.4,
+   "seed": 0,
+   "removed": 55699,
+   "steer": 0.625,
+   "escape": 1.0799999999999998,
+   "walk": 1.4,
+   "hear": 0.9664694280078895,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.4,
+   "seed": 1,
+   "removed": 55699,
+   "steer": 0.75,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.8086785009861933,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.4,
+   "seed": 2,
+   "removed": 55699,
+   "steer": 0.5,
+   "escape": 1.04,
+   "walk": 0.7,
+   "hear": 0.8678500986193295,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.5,
+   "seed": 0,
+   "removed": 69624,
+   "steer": 0.5,
+   "escape": 1.0799999999999998,
+   "walk": 1.0999999999999999,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.5,
+   "seed": 1,
+   "removed": 69624,
+   "steer": 0.625,
+   "escape": 1.04,
+   "walk": 0.5,
+   "hear": 0.7889546351084813,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.5,
+   "seed": 2,
+   "removed": 69624,
+   "steer": 0.5,
+   "escape": 1.04,
+   "walk": 0.6,
+   "hear": 0.8875739644970415,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.6,
+   "seed": 0,
+   "removed": 83548,
+   "steer": 0.375,
+   "escape": 1.0799999999999998,
+   "walk": 0.8999999999999999,
+   "hear": 0.9664694280078895,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.6,
+   "seed": 1,
+   "removed": 83548,
+   "steer": 0.25,
+   "escape": 1.04,
+   "walk": 0.5,
+   "hear": 0.8481262327416174,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.6,
+   "seed": 2,
+   "removed": 83548,
+   "steer": 0.5,
+   "escape": 1.04,
+   "walk": 0.5,
+   "hear": 0.8678500986193295,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.7,
+   "seed": 0,
+   "removed": 97473,
+   "steer": 0.25,
+   "escape": 1.0799999999999998,
+   "walk": 0.6,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.7,
+   "seed": 1,
+   "removed": 97473,
+   "steer": 0.25,
+   "escape": 1.04,
+   "walk": 0.6,
+   "hear": 0.8481262327416174,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.7,
+   "seed": 2,
+   "removed": 97473,
+   "steer": 0.375,
+   "escape": 1.04,
+   "walk": 0.6,
+   "hear": 0.8481262327416174,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.8,
+   "seed": 0,
+   "removed": 111398,
+   "steer": 0.25,
+   "escape": 1.0799999999999998,
+   "walk": 0.6,
+   "hear": 0.9467455621301776,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.8,
+   "seed": 1,
+   "removed": 111398,
+   "steer": 0.125,
+   "escape": 1.04,
+   "walk": 0.5,
+   "hear": 0.8284023668639053,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.8,
+   "seed": 2,
+   "removed": 111398,
+   "steer": 0.25,
+   "escape": 1.0799999999999998,
+   "walk": 0.39999999999999997,
+   "hear": 0.9072978303747535,
+   "accept": 1.1111111111111112
+  },
+  {
+   "frac": 0.9,
+   "seed": 0,
+   "removed": 125323,
+   "steer": 0.25,
+   "escape": 1.0799999999999998,
+   "walk": 0.5,
+   "hear": 0.9861932938856016,
+   "accept": 1.0
+  },
+  {
+   "frac": 0.9,
+   "seed": 1,
+   "removed": 125323,
+   "steer": 0.0,
+   "escape": 1.0799999999999998,
+   "walk": 0.0,
+   "hear": 0.8678500986193295,
+   "accept": 0.888888888888889
+  },
+  {
+   "frac": 0.9,
+   "seed": 2,
+   "removed": 125323,
+   "steer": 0.125,
+   "escape": 1.0799999999999998,
+   "walk": 0.09999999999999999,
+   "hear": 0.9072978303747535,
+   "accept": 1.1111111111111112
+  }
+ ],
+ "targeted": {
+  "optic lobes": {
+   "removed": 77541,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  "central brain intrinsic": {
+   "removed": 32371,
+   "steer": 0.0,
+   "escape": 1.0799999999999998,
+   "walk": 0.0,
+   "hear": 1.0256410256410258,
+   "accept": 1.0
+  },
+  "all inhibitory (GABA)": {
+   "removed": 19144,
+   "steer": 1.125,
+   "escape": 1.04,
+   "walk": 2.0,
+   "hear": 1.0453648915187377,
+   "accept": 1.0
+  },
+  "all glutamatergic": {
+   "removed": 24836,
+   "steer": 1.0,
+   "escape": 1.04,
+   "walk": 1.2999999999999998,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  "all dopaminergic": {
+   "removed": 5908,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  "right hemisphere": {
+   "removed": 68651,
+   "steer": 1.0,
+   "escape": 1.04,
+   "walk": 0.8999999999999999,
+   "hear": 0.8678500986193295,
+   "accept": 1.0
+  },
+  "left hemisphere": {
+   "removed": 69463,
+   "steer": 0.0,
+   "escape": 1.04,
+   "walk": 0.8999999999999999,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  "top 1% hubs by synapse count": {
+   "removed": 1386,
+   "steer": 0.875,
+   "escape": 1.0799999999999998,
+   "walk": 1.5999999999999999,
+   "hear": 0.9270216962524654,
+   "accept": 1.0555555555555556
+  },
+  "top 10% hubs": {
+   "removed": 13881,
+   "steer": 0.0,
+   "escape": 1.0799999999999998,
+   "walk": 0.19999999999999998,
+   "hear": 0.9467455621301776,
+   "accept": 1.0
+  },
+  "Kenyon cells (mushroom body)": {
+   "removed": 5177,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  "central complex": {
+   "removed": 2875,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.9270216962524654,
+   "accept": 1.0
+  },
+  "all descending neurons except read-outs": {
+   "removed": 1290,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "hear": 0.8481262327416174,
+   "accept": 1.0
+  }
+ }
+}

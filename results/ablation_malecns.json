@@ -1,0 +1,444 @@
+{
+ "brain": "malecns",
+ "N": 164611,
+ "assays": {
+  "steer": "steer toward target (left eye \u2192 left DNa02)",
+  "escape": "escape (looming LPLC2/LC4 \u2192 giant fiber DNp01)",
+  "walk": "walk forward (touch/leg input \u2192 DNp09/DNa01)",
+  "song": "song (P1 \u2192 pIP10)"
+ },
+ "intact": {
+  "steer": 26.666666666666668,
+  "escape": 53.333333333333336,
+  "walk": 2.2222222222222223,
+  "song": 40.0
+ },
+ "random": [
+  {
+   "frac": 0,
+   "seed": 0,
+   "removed": 0,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "song": 1.0
+  },
+  {
+   "frac": 0.01,
+   "seed": 0,
+   "removed": 1646,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 0.5,
+   "song": 1.0
+  },
+  {
+   "frac": 0.01,
+   "seed": 1,
+   "removed": 1646,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 1.25,
+   "song": 1.0
+  },
+  {
+   "frac": 0.01,
+   "seed": 2,
+   "removed": 1646,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 1.0,
+   "song": 1.0
+  },
+  {
+   "frac": 0.02,
+   "seed": 0,
+   "removed": 3292,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 1.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.02,
+   "seed": 1,
+   "removed": 3292,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 1.5,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.02,
+   "seed": 2,
+   "removed": 3292,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.75,
+   "song": 1.0
+  },
+  {
+   "frac": 0.05,
+   "seed": 0,
+   "removed": 8230,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 1.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.05,
+   "seed": 1,
+   "removed": 8230,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 0.5,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.05,
+   "seed": 2,
+   "removed": 8230,
+   "steer": 1.0,
+   "escape": 0.96875,
+   "walk": 0.75,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.1,
+   "seed": 0,
+   "removed": 16461,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.75,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.1,
+   "seed": 1,
+   "removed": 16461,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 0.75,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.1,
+   "seed": 2,
+   "removed": 16461,
+   "steer": 1.125,
+   "escape": 0.96875,
+   "walk": 1.0,
+   "song": 1.0
+  },
+  {
+   "frac": 0.2,
+   "seed": 0,
+   "removed": 32922,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 0.5,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.2,
+   "seed": 1,
+   "removed": 32922,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 0.5,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.2,
+   "seed": 2,
+   "removed": 32922,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 0.25,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.3,
+   "seed": 0,
+   "removed": 49383,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 0.75,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.3,
+   "seed": 1,
+   "removed": 49383,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.75,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.3,
+   "seed": 2,
+   "removed": 49383,
+   "steer": 0.875,
+   "escape": 1.03125,
+   "walk": 0.25,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.4,
+   "seed": 0,
+   "removed": 65844,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.4,
+   "seed": 1,
+   "removed": 65844,
+   "steer": 0.875,
+   "escape": 1.03125,
+   "walk": 0.25,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.4,
+   "seed": 2,
+   "removed": 65844,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.5,
+   "seed": 0,
+   "removed": 82305,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.5,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.5,
+   "seed": 1,
+   "removed": 82305,
+   "steer": 0.75,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.5,
+   "seed": 2,
+   "removed": 82305,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 0.0,
+   "song": 1.0416666666666667
+  },
+  {
+   "frac": 0.6,
+   "seed": 0,
+   "removed": 98766,
+   "steer": 0.75,
+   "escape": 1.0,
+   "walk": 0.0,
+   "song": 1.125
+  },
+  {
+   "frac": 0.6,
+   "seed": 1,
+   "removed": 98766,
+   "steer": 0.625,
+   "escape": 1.03125,
+   "walk": 0.25,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.6,
+   "seed": 2,
+   "removed": 98766,
+   "steer": 0.875,
+   "escape": 0.96875,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.7,
+   "seed": 0,
+   "removed": 115227,
+   "steer": 0.5,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.125
+  },
+  {
+   "frac": 0.7,
+   "seed": 1,
+   "removed": 115227,
+   "steer": 0.625,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.7,
+   "seed": 2,
+   "removed": 115227,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.8,
+   "seed": 0,
+   "removed": 131688,
+   "steer": 0.25,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.8,
+   "seed": 1,
+   "removed": 131688,
+   "steer": 0.5,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.8,
+   "seed": 2,
+   "removed": 131688,
+   "steer": 0.875,
+   "escape": 1.0,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.9,
+   "seed": 0,
+   "removed": 148149,
+   "steer": 0.0,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.9,
+   "seed": 1,
+   "removed": 148149,
+   "steer": 0.125,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  {
+   "frac": 0.9,
+   "seed": 2,
+   "removed": 148149,
+   "steer": 0.625,
+   "escape": 1.0,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  }
+ ],
+ "targeted": {
+  "optic lobes": {
+   "removed": 89381,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 1.0,
+   "song": 1.0
+  },
+  "central brain intrinsic": {
+   "removed": 32012,
+   "steer": 0.0,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  "all inhibitory (GABA)": {
+   "removed": 22061,
+   "steer": 1.3750000000000002,
+   "escape": 1.03125,
+   "walk": 6.5,
+   "song": 1.1666666666666667
+  },
+  "all glutamatergic": {
+   "removed": 29295,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 1.25,
+   "song": 1.0416666666666667
+  },
+  "all dopaminergic": {
+   "removed": 392,
+   "steer": 1.0,
+   "escape": 1.03125,
+   "walk": 0.75,
+   "song": 1.0
+  },
+  "right hemisphere": {
+   "removed": 82152,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0416666666666667
+  },
+  "left hemisphere": {
+   "removed": 80672,
+   "steer": 0.0,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  "top 1% hubs by synapse count": {
+   "removed": 1638,
+   "steer": 1.125,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  "top 10% hubs": {
+   "removed": 16275,
+   "steer": 0.0,
+   "escape": 1.03125,
+   "walk": 0.0,
+   "song": 1.0833333333333335
+  },
+  "Kenyon cells (mushroom body)": {
+   "removed": 4063,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "song": 1.0
+  },
+  "central complex": {
+   "removed": 2950,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 1.0,
+   "song": 1.0
+  },
+  "all descending neurons except read-outs": {
+   "removed": 1304,
+   "steer": 1.0,
+   "escape": 1.0,
+   "walk": 0.75,
+   "song": 1.0
+  },
+  "ventral nerve cord": {
+   "removed": 20130,
+   "steer": 1.125,
+   "escape": 1.0,
+   "walk": 1.0,
+   "song": 1.0416666666666667
+  }
+ }
+}

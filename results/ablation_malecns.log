@@ -40,3 +40,15 @@ random   90% seed 1: steer=0.12 escape=1.03 walk=0.00 song=1.08  [255s]
 random   90% seed 2: steer=0.62 escape=1.00 walk=0.00 song=1.08  [262s]
 targeted [optic lobes] removed 89,381: steer=1.00 escape=1.03 walk=1.00 song=1.00
 targeted [central brain intrinsic] removed 32,012: steer=0.00 escape=1.03 walk=0.00 song=1.08
+targeted [all inhibitory (GABA)] removed 22,061: steer=1.38 escape=1.03 walk=6.50 song=1.17
+targeted [all glutamatergic] removed 29,295: steer=1.12 escape=1.03 walk=1.25 song=1.04
+targeted [all dopaminergic] removed 392: steer=1.00 escape=1.03 walk=0.75 song=1.00
+targeted [right hemisphere] removed 82,152: steer=1.12 escape=1.03 walk=0.00 song=1.04
+targeted [left hemisphere] removed 80,672: steer=0.00 escape=1.03 walk=0.00 song=1.08
+targeted [top 1% hubs by synapse count] removed 1,638: steer=1.12 escape=1.03 walk=0.00 song=1.08
+targeted [top 10% hubs] removed 16,275: steer=0.00 escape=1.03 walk=0.00 song=1.08
+targeted [Kenyon cells (mushroom body)] removed 4,063: steer=1.00 escape=1.00 walk=1.00 song=1.00
+targeted [central complex] removed 2,950: steer=1.00 escape=1.00 walk=1.00 song=1.00
+targeted [all descending neurons except read-outs] removed 1,304: steer=1.00 escape=1.00 walk=0.75 song=1.00
+targeted [ventral nerve cord] removed 20,130: steer=1.12 escape=1.00 walk=1.00 song=1.04
+saved

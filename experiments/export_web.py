@@ -4,6 +4,7 @@ import sys, json, numpy as np, pandas as pd; sys.path.insert(0, ".")
 from twobrains.connectome import Connectome
 
 src, dst = sys.argv[1], sys.argv[2]; ND = int(sys.argv[3]) if len(sys.argv) > 3 else 6000
+MAX_EDGES = int(sys.argv[4]) if len(sys.argv) > 4 else 60000
 run = json.load(open(src)); spk = np.load(src.replace(".json", "") + ".spikes.npz")
 out = {"tick_ms": run["tick_ms"], "arena_r": run["arena_r"], "ticks": len(run["log"]), "bodies": [], "series": {}, "brains": {}}
 for rec in run["log"]:
@@ -41,7 +42,12 @@ for who, name in [("male", "malecns"), ("female", "flywire")]:
     for t in range(len(ptr) - 1):
         s = remap[idx[ptr[t]:ptr[t + 1]]]; per_tick.append(s[s >= 0].tolist())
     p = pos[disp]
-    out["brains"][who] = {"n_total": int(c.N), "n_display": int(disp.size), "groups": ["other"] + list(GROUPS[who].keys()),
+    # strongest synaptic connections among displayed neurons (for the wiring layer)
+    sub = c.W[disp][:, disp].tocoo()
+    keep = np.argsort(-np.abs(sub.data))[:MAX_EDGES]
+    edges = np.stack([sub.col[keep], sub.row[keep]], 1)          # [pre, post] display indices
+    esign = (sub.data[keep] > 0).astype(np.int8)
+    out["brains"][who] = {"edges": edges.astype(int).tolist(), "esign": esign.tolist(),"n_total": int(c.N), "n_display": int(disp.size), "groups": ["other"] + list(GROUPS[who].keys()),
                           "pos": np.round(p, 1).tolist(), "group": group.tolist(), "type": c.meta.loc[disp, "type"].fillna("").tolist(),
                           "spikes": per_tick, "fired_total": int((fired > 0).sum())}
     print(who, "display", disp.size, "of", c.N, "| neurons that fired at least once:", int((fired > 0).sum()))

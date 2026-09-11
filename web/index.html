@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TwoBrains</title>
+<style>
+  :root { --bg:#07080c; --panel:#0e1017; --ink:#e8e9ef; --dim:#7a7f92; --male:#4aa3ff; --female:#ff5fa2; --song:#ffd166; --accept:#2ee6a6; --reject:#ff4d4d; }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 -apple-system, "Inter", system-ui, sans-serif; }
+  header { display:flex; align-items:baseline; gap:16px; padding:14px 20px 6px; }
+  header h1 { margin:0; font-size:20px; letter-spacing:.3px }
+  header .sub { color:var(--dim); font-size:13px }
+  #grid { display:grid; grid-template-columns: 1fr 1.15fr 1fr; gap:10px; padding:0 12px; }
+  .panel { background:var(--panel); border:1px solid #1b1e2a; border-radius:12px; position:relative; overflow:hidden }
+  .panel h2 { position:absolute; left:12px; top:8px; margin:0; font-size:13px; font-weight:600; z-index:2 }
+  .panel h2 small { color:var(--dim); font-weight:400; margin-left:8px }
+  .panel canvas { display:block; width:100%; height:100% }
+  .brain { height:520px } .arena { height:520px }
+  #traces { margin:10px 12px 0; height:170px }
+  #controls { display:flex; gap:12px; align-items:center; padding:10px 20px; color:var(--dim); flex-wrap:wrap }
+  button { background:#1a1d2b; color:var(--ink); border:1px solid #2a2e40; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px }
+  button:hover { background:#232738 }
+  input[type=range] { width:320px }
+  .legend { position:absolute; right:10px; bottom:8px; font-size:11px; color:var(--dim); z-index:2; display:flex; flex-wrap:wrap; gap:4px 10px; max-width:70% }
+  .legend i { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle }
+  .hud { position:absolute; left:12px; bottom:10px; font-size:12px; color:var(--dim); z-index:2; line-height:1.5 }
+  .hud b { color:var(--ink) }
+  #status { margin-left:auto }
+</style>
+</head>
+<body>
+<header>
+  <h1>TwoBrains</h1>
+  <span class="sub">a real male fly brain (MaleCNS v1.0, 164,611 neurons) and a real female fly brain (FlyWire v783, 139,248 neurons), simulated together in one courtship arena</span>
+</header>
+<div id="grid">
+  <div class="panel brain"><h2>♂ male brain <small id="mInfo"></small></h2><canvas id="mBrain"></canvas><div class="legend" id="mLegend"></div><div class="hud" id="mHud"></div></div>
+  <div class="panel arena"><h2>arena <small>20 mm chamber</small></h2><canvas id="arena"></canvas><div class="hud" id="aHud"></div></div>
+  <div class="panel brain"><h2>♀ female brain <small id="fInfo"></small></h2><canvas id="fBrain"></canvas><div class="legend" id="fLegend"></div><div class="hud" id="fHud"></div></div>
+</div>
+<div class="panel" id="traces"><canvas id="tr"></canvas></div>
+<div id="controls">
+  <button id="play">▶ play</button>
+  <label>speed <select id="speed"><option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+  <input type="range" id="scrub" min="0" max="0" value="0">
+  <span id="time">0.00 s</span>
+  <label>run <select id="run"></select></label>
+  <span id="status"></span>
+</div>
+<script>
+const RUNS = (window.TWOBRAINS_RUNS || ["aroused", "baseline"]);
+const GROUP_COLORS = ["#3a3f52", "#ffd166", "#ff8c42", "#4aa3ff", "#9b5cff", "#2ee6a6", "#ff5fa2", "#c8ff5c"];
+const AXES = { male: [0, 2], female: [0, 1] };   // soma projection axes per brain (x lateral; male shows brain + nerve cord)
+let data = null, tick = 0, playing = false, speed = 1, acc = 0, lastT = 0;
+const glow = { male: null, female: null };       // per-display-neuron decaying activity
+
+const $ = id => document.getElementById(id);
+function fit(c) { const r = c.getBoundingClientRect(), d = devicePixelRatio || 1; c.width = r.width * d; c.height = r.height * d; const g = c.getContext("2d"); g.setTransform(d, 0, 0, d, 0, 0); return [g, r.width, r.height]; }
+
+async function load(name) {
+  $("status").textContent = "loading " + name + "…";
+  const src = window.TWOBRAINS_DATA ? window.TWOBRAINS_DATA[name] : await (await fetch(`data/${name}.json`)).json();
+  data = src; tick = 0; $("scrub").max = data.ticks - 1;
+  for (const who of ["male", "female"]) {
+    const b = data.brains[who]; glow[who] = new Float32Array(b.n_display);
+    const ax = AXES[who]; let mn = [1e9, 1e9], mx = [-1e9, -1e9];
+    for (const p of b.pos) for (let k = 0; k < 2; k++) { const v = p[ax[k]]; if (v < mn[k]) mn[k] = v; if (v > mx[k]) mx[k] = v; }
+    b._norm = b.pos.map(p => [(p[ax[0]] - mn[0]) / (mx[0] - mn[0]), (p[ax[1]] - mn[1]) / (mx[1] - mn[1])]);
+    $(who[0] + "Info").textContent = `${b.n_total.toLocaleString()} neurons · ${b.fired_total.toLocaleString()} fired · showing ${b.n_display.toLocaleString()}`;
+    $(who[0] + "Legend").innerHTML = b.groups.map((g, i) => i ? `<span><i style="background:${GROUP_COLORS[i]}"></i>${g}</span>` : "").join("");
+  }
+  $("status").textContent = `${data.ticks} ticks · ${(data.ticks * data.tick_ms / 1000).toFixed(1)} s simulated`;
+  draw();
+}
+
+function drawBrain(who) {
+  const c = $(who[0] + "Brain"), [g, W, H] = fit(c), b = data.brains[who], gl = glow[who];
+  g.fillStyle = "#0e1017"; g.fillRect(0, 0, W, H);
+  const pad = 24, sw = W - 2 * pad, sh = H - 2 * pad - 30;
+  // decay + spikes this tick
+  for (let i = 0; i < gl.length; i++) gl[i] *= 0.72;
+  for (const i of b.spikes[tick]) gl[i] = 1;
+  // background neurons
+  for (let i = 0; i < b.n_display; i++) {
+    const p = b._norm[i], x = pad + p[0] * sw, y = pad + 30 + p[1] * sh, grp = b.group[i], a = gl[i];
+    if (a < 0.03 && grp === 0) { g.fillStyle = "rgba(90,96,120,0.28)"; g.fillRect(x, y, 1.2, 1.2); continue; }
+    const col = GROUP_COLORS[grp], r = grp ? 2.2 + 3 * a : 1.2 + 2.5 * a;
+    g.globalAlpha = grp ? 0.55 + 0.45 * a : 0.25 + 0.75 * a;
+    g.fillStyle = grp ? col : "#dfe6ff"; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+    if (a > 0.5) { g.globalAlpha = 0.25 * a; g.beginPath(); g.arc(x, y, r * 3, 0, 6.283); g.fill(); }
+    g.globalAlpha = 1;
+  }
+  const s = data.series[who], f = k => (s[k] ? s[k][tick] : 0).toFixed(0);
+  $(who[0] + "Hud").innerHTML = who === "male"
+    ? `active neurons <b>${f("_active")}</b><br>P1 <b>${f("P1")} Hz</b> · song DN <b>${f("song")} Hz</b><br>turn L/R <b>${f("turn_L")}/${f("turn_R")}</b> · forward <b>${f("forward")}</b>`
+    : `active neurons <b>${f("_active")}</b><br>pC1 <b>${f("P1")} Hz</b> · accept DN <b>${f("accept")} Hz</b> · reject DN <b>${f("reject")} Hz</b><br>turn L/R <b>${f("turn_L")}/${f("turn_R")}</b> · forward <b>${f("forward")}</b>`;
+}
+
+function fly(g, x, y, h, col, len) {
+  const a = h * Math.PI / 180; g.save(); g.translate(x, y); g.rotate(a);
+  g.fillStyle = col; g.beginPath(); g.moveTo(len * 0.6, 0); g.lineTo(-len * 0.4, len * 0.28); g.lineTo(-len * 0.25, 0); g.lineTo(-len * 0.4, -len * 0.28); g.closePath(); g.fill();
+  g.restore();
+}
+function drawArena() {
+  const c = $("arena"), [g, W, H] = fit(c); g.fillStyle = "#0e1017"; g.fillRect(0, 0, W, H);
+  const R = Math.min(W, H) / 2 - 24, cx = W / 2, cy = H / 2 + 8, k = R / data.arena_r;
+  g.strokeStyle = "#2a2e40"; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, R, 0, 6.283); g.stroke();
+  const [mx, my, mh, fx, fy, fh, sing, acc, rej, dist] = data.bodies[tick];
+  // trails
+  g.lineWidth = 1.2; for (const [who, col, ix, iy] of [["m", "rgba(74,163,255,.35)", 0, 1], ["f", "rgba(255,95,162,.35)", 3, 4]]) {
+    g.strokeStyle = col; g.beginPath(); for (let t = Math.max(0, tick - 150); t <= tick; t++) { const b = data.bodies[t]; const X = cx + b[ix] * k, Y = cy - b[iy] * k; t === Math.max(0, tick - 150) ? g.moveTo(X, Y) : g.lineTo(X, Y); } g.stroke(); }
+  // song ripples
+  if (sing > 0.02) { for (let i = 0; i < 3; i++) { const ph = ((tick * 0.35) + i / 3) % 1; g.strokeStyle = `rgba(255,209,102,${(1 - ph) * sing})`; g.lineWidth = 1.5; g.beginPath(); g.arc(cx + mx * k, cy - my * k, 6 + ph * 60, 0, 6.283); g.stroke(); } }
+  if (acc > 0.02) { g.fillStyle = `rgba(46,230,166,${0.35 * acc})`; g.beginPath(); g.arc(cx + fx * k, cy - fy * k, 18, 0, 6.283); g.fill(); }
+  if (rej > 0.02) { g.fillStyle = `rgba(255,77,77,${0.35 * rej})`; g.beginPath(); g.arc(cx + fx * k, cy - fy * k, 18, 0, 6.283); g.fill(); }
+  fly(g, cx + mx * k, cy - my * k, -mh, "#4aa3ff", 2.5 * k * 1.6);
+  fly(g, cx + fx * k, cy - fy * k, -fh, "#ff5fa2", 2.5 * k * 1.6);
+  $("aHud").innerHTML = `distance <b>${dist.toFixed(1)} mm</b><br>♂ song <b>${(sing * 100).toFixed(0)}%</b> · ♀ accept <b>${(acc * 100).toFixed(0)}%</b> · reject <b>${(rej * 100).toFixed(0)}%</b>`;
+}
+function drawTraces() {
+  const c = $("tr"), [g, W, H] = fit(c); g.fillStyle = "#0e1017"; g.fillRect(0, 0, W, H);
+  const rows = [["male", "P1", "#ffd166", "♂ P1"], ["male", "song", "#ff8c42", "♂ song DN (pIP10)"], ["female", "P1", "#ff5fa2", "♀ pC1"], ["female", "accept", "#2ee6a6", "♀ accept DN (vpoDN)"], ["female", "reject", "#ff4d4d", "♀ reject DN (DNp13)"]];
+  const n = data.ticks, x0 = 150, w = W - x0 - 12, rh = (H - 10) / rows.length;
+  rows.forEach(([who, key, col, label], r) => {
+    const s = data.series[who][key] || []; const mx = Math.max(5, ...s); const y0 = 5 + r * rh;
+    g.fillStyle = "#7a7f92"; g.font = "11px system-ui"; g.fillText(label, 10, y0 + rh * 0.65);
+    g.strokeStyle = col; g.lineWidth = 1.3; g.beginPath();
+    for (let t = 0; t < n; t++) { const X = x0 + t / n * w, Y = y0 + rh - 2 - (s[t] / mx) * (rh - 6); t ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.stroke();
+  });
+  g.strokeStyle = "#e8e9ef"; g.lineWidth = 1; g.beginPath(); const X = x0 + tick / n * w; g.moveTo(X, 4); g.lineTo(X, H - 4); g.stroke();
+}
+function draw() { if (!data) return; drawBrain("male"); drawBrain("female"); drawArena(); drawTraces(); $("scrub").value = tick; $("time").textContent = (tick * data.tick_ms / 1000).toFixed(2) + " s"; }
+function loop(ts) {
+  if (playing && data) { const dt = (ts - lastT) / 1000; acc += dt * speed * 1000 / data.tick_ms; while (acc >= 1) { acc -= 1; tick = (tick + 1) % data.ticks; } draw(); }
+  lastT = ts; requestAnimationFrame(loop);
+}
+$("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "❚❚ pause" : "▶ play"; };
+$("speed").onchange = e => speed = +e.target.value;
+$("scrub").oninput = e => { tick = +e.target.value; for (const w of ["male", "female"]) glow[w].fill(0); draw(); };
+$("run").innerHTML = RUNS.map(r => `<option>${r}</option>`).join(""); $("run").onchange = e => load(e.target.value);
+addEventListener("resize", draw);
+load(RUNS[0]); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

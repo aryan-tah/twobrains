@@ -16,6 +16,11 @@ from .connectome import Connectome
 from .lif import LIFBrain, LIFParams
 
 ARENA_R = 10.0      # mm  (standard courtship chamber ~ 20 mm diameter)
+
+# Calibrated LIF regimes (see experiments/sweep.py). The male dataset reports ~2.3x more input
+# synapses per neuron than FlyWire, so its per-synapse gain is scaled down accordingly.
+MALE_PARAMS = LIFParams(w_syn=0.2, g_cap=30, b_adapt=3, tau_adapt=200)
+FEMALE_PARAMS = LIFParams(w_syn=0.275, g_cap=30, b_adapt=3, tau_adapt=200)
 TICK_MS = 10.0
 BODY_LEN = 2.5      # mm
 MAX_SPEED = 15.0    # mm/s  walking
@@ -59,9 +64,22 @@ class Body:
 class Fly:
     """A connectome brain + body + the sensory/motor mapping for its sex."""
 
-    def __init__(self, name: str, sex: str, conn: Connectome, body: Body, params: LIFParams = LIFParams(), seed=0):
+    def __init__(self, name: str, sex: str, conn: Connectome, body: Body, params: LIFParams | None = None, seed=0,
+                 arousal_hz: float = 0.0, knockout: list[str] | None = None):
+        """arousal_hz : tonic Poisson drive (Hz) to the sex-specific command neurons (male P1 / female pC1a),
+                       standing in for the neuromodulatory internal state the connectome does not contain.
+           knockout   : list of type regexes whose neurons are silenced (all their synapses removed)."""
         self.name, self.sex, self.c, self.body = name, sex, conn, body
-        self.brain = LIFBrain(conn.W, params, seed=seed)
+        params = params or (MALE_PARAMS if sex == "male" else FEMALE_PARAMS)
+        W = conn.W
+        self.knocked = np.empty(0, int)
+        if knockout:
+            self.knocked = np.unique(np.concatenate([conn.select(k) for k in knockout]))
+            keep = np.ones(conn.N, np.float32); keep[self.knocked] = 0
+            import scipy.sparse as sp
+            W = (sp.diags(keep) @ W @ sp.diags(keep)).tocsc()
+        self.brain = LIFBrain(W, params, seed=seed)
+        self.arousal_hz = arousal_hz
         self.rng = np.random.default_rng(seed + 1)
         s = conn.select
         # ---- sensory populations (side-resolved) --------------------------------------
@@ -81,9 +99,11 @@ class Fly:
             "accept": s(r"^DNp37$") if sex == "female" else np.empty(0, int),       # vpoDN: vaginal plate opening
             "reject": s(r"^DNp13$") if sex == "female" else np.empty(0, int),       # ovipositor extrusion
         }
+        self.state_pop = s(r"^pC1_") if sex == "male" else s(r"^pC1a$")   # arousal target
         self.watch = {k: v for k, v in {**self.sense, **self.motor,
                       "P1": s(r"^pC1_") if sex == "male" else s(r"^pC1[a-e]$")}.items() if v.size}
         self._counts = np.zeros(conn.N, np.int64)
+        self.spike_log: list[np.ndarray] = []      # per tick: indices of neurons that spiked (full resolution)
 
     # ------------------------------------------------------------------------------------
     def sensory_rates(self, other: "Fly") -> dict[str, float]:
@@ -105,25 +125,31 @@ class Fly:
         n = int(TICK_MS / self.brain.p.dt)
         self._counts[:] = 0
         pops = [(self.sense[k], v) for k, v in rates.items() if v > 0 and self.sense[k].size]
+        if self.arousal_hz > 0:
+            pops.append((self.state_pop, self.arousal_hz))
         p = self.brain.p
         for _ in range(n):
-            g = self.brain.g
+            v = self.brain.v
             for idx, hz in pops:
                 k = self.rng.random(idx.size) < hz * p.dt / 1000.0
-                g[idx[k]] += p.w_syn * 250.0
+                v[idx[k]] = 1e3
             if background_hz:
                 k = self.rng.random(self.brain.N) < background_hz * p.dt / 1000.0
-                g[k] += p.w_syn * 250.0
+                v[k] = 1e3
             sp = self.brain.step()
             self._counts[sp] += 1
-        return {k: float(self._counts[v].mean()) for k, v in self.watch.items()}
+        self.spike_log.append(np.flatnonzero(self._counts).astype(np.int32))
+        out = {k: float(self._counts[v].mean()) for k, v in self.watch.items()}
+        out["_total"] = int(self._counts.sum()); out["_active"] = int((self._counts > 0).sum())
+        return out
 
     def act(self, out: dict[str, float]):
         """Map motor neuron spike counts (per 10 ms, mean over population) to body commands."""
         b = self.body
         rate = lambda k: out.get(k, 0.0) * (1000.0 / TICK_MS)          # -> Hz
         b.turn = float(np.clip((rate("turn_L") - rate("turn_R")) / 100.0, -1, 1)) * MAX_TURN
-        b.speed = float(np.clip(rate("forward") / 100.0, 0, 1)) * MAX_SPEED
+        # forward drive: DNp09 (forward walking) plus bilateral DNa02 activity (turning-while-walking)
+        b.speed = float(np.clip((rate("forward") + 0.5 * (rate("turn_L") + rate("turn_R"))) / 100.0, 0, 1)) * MAX_SPEED
         b.singing = float(np.clip(rate("song") / 100.0, 0, 1))
         b.accept = float(np.clip(rate("accept") / 100.0, 0, 1))
         b.reject = float(np.clip(rate("reject") / 100.0, 0, 1))
@@ -162,5 +188,12 @@ class Arena:
         return self.log
 
     def save(self, path: str):
+        """Writes <path> (JSON: bodies, population rates per tick) and <path>.spikes.npz (which neurons fired each tick)."""
         with open(path, "w") as fh:
-            json.dump({"tick_ms": TICK_MS, "arena_r": ARENA_R, "log": self.log}, fh)
+            json.dump({"tick_ms": TICK_MS, "arena_r": ARENA_R, "male": {"n": self.male.c.N, "arousal_hz": self.male.arousal_hz, "knockout": self.male.knocked.tolist()},
+                       "female": {"n": self.female.c.N, "arousal_hz": self.female.arousal_hz, "knockout": self.female.knocked.tolist()}, "log": self.log}, fh)
+        def pack(fly):
+            ptr = np.zeros(len(fly.spike_log) + 1, np.int64); ptr[1:] = np.cumsum([s.size for s in fly.spike_log])
+            return np.concatenate(fly.spike_log) if fly.spike_log else np.empty(0, np.int32), ptr
+        mi, mp = pack(self.male); fi, fp = pack(self.female)
+        np.savez_compressed(path.replace(".json", "") + ".spikes.npz", male_idx=mi, male_ptr=mp, female_idx=fi, female_ptr=fp)

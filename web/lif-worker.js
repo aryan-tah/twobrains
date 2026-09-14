@@ -48,7 +48,7 @@ function simulate(inp, hz, tMs, seed, binMs) {
 onmessage = e => {
   const m = e.data;
   if (m.type === "load") { const pos = load(m.buf); P = m.params; postMessage({ type: "loaded", N, nnz, pos }, [pos.buffer]); }
-  else if (m.type === "params") { P = m.params; }
+  else if (m.type === "params") { P = m.params; postMessage({ type: "paramsok" }); }
   else if (m.type === "keep") { keep = m.keep; let alive = 0, syn = 0; for (let i = 0; i < N; i++) if (keep[i]) { alive++; for (let j = indptr[i], en = indptr[i + 1]; j < en; j++) if (keep[indices[j]]) syn += Math.abs(wdata[j]); } postMessage({ type: "keepok", alive, syn }); }
   else if (m.type === "assay") {
     const t0 = performance.now(); const { cnt, bins } = simulate(m.inp, m.hz, m.tMs || 300, m.seed || 1, m.binMs || 10);

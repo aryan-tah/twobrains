@@ -148,7 +148,7 @@ function loop(ts) {
       else if (alpha[i] !== baseA[i]) { alpha[i] = baseA[i]; size[i] = baseS[i]; color[3*i] = baseC[3*i]; color[3*i+1] = baseC[3*i+1]; color[3*i+2] = baseC[3*i+2]; }
     }
     const a = pts.geometry.attributes; a.aColor.needsUpdate = a.aAlpha.needsUpdate = a.aSize.needsUpdate = true;
-    if (autoRot) rig.rotation.y += dt * 0.07;
+    if (autoRot && !matchMedia("(prefers-reduced-motion: reduce)").matches) rig.rotation.y += dt * 0.07;
   }
   cam.position.set(target.x + Math.sin(theta) * Math.sin(phi) * dist, target.y + Math.cos(phi) * dist, target.z + Math.cos(theta) * Math.sin(phi) * dist); cam.lookAt(target);
   renderer.render(scene, cam); requestAnimationFrame(loop);

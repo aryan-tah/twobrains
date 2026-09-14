@@ -85,7 +85,7 @@ async function runTests() {
     r.bins.forEach((b, j) => { if (j < 20) for (const n of b) merged[j].push(n); }); });
   await new Promise(res => { play = { bins: merged, i: 0, t: 0, done: res }; });
 }
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = ms => new Promise(r => { const tick = () => paused ? setTimeout(tick, 100) : setTimeout(r, ms); tick(); });
 function rnd(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
 function randomKeep(frac, seed) { const r = rnd(seed), prot = new Uint8Array(N); for (const i of meta.protected) prot[i] = 1; const nk = new Uint8Array(N); for (let i = 0; i < N; i++) nk[i] = prot[i] || r() >= frac ? 1 : 0; return nk; }
 function groupKeep(g) { const nk = new Uint8Array(N).fill(1); const prot = new Set(meta.protected); for (const i of meta.groups[g]) if (!prot.has(i)) nk[i] = 0; return nk; }
@@ -152,6 +152,7 @@ function loop(ts) {
   cam.position.set(target.x + Math.sin(theta) * Math.sin(phi) * dist, target.y + Math.cos(phi) * dist, target.z + Math.cos(theta) * Math.sin(phi) * dist); cam.lookAt(target);
   renderer.render(scene, cam); requestAnimationFrame(loop);
 }
+let paused = false; addEventListener("keydown", e => { if (e.code === "Space") { paused = !paused; e.preventDefault(); } });
 boot(); requestAnimationFrame(loop);
 </script>
 </body>

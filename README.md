@@ -13,6 +13,14 @@ their real descending outputs. Nothing is trained. The only thing deciding wheth
 left hemisphere deleted → the brain collapsed to its 316-neuron escape circuit → to 4 neurons. Every step is a
 live simulation, not a recording.
 
+## Contents
+
+1. [Results](#results)
+2. [How it works](#how-it-works)
+3. [Run it](#run-it)
+4. [Caveats](#caveats-stated-plainly)
+5. [Data](#data)
+
 ## Results
 
 Random deletion, mean of 3 seeds, score relative to the intact brain (female brain, FlyWire):

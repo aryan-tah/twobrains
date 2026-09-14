@@ -13,7 +13,7 @@ DATA = os.path.join(ROOT, "data")
 CACHE = os.path.join(ROOT, "cache")
 
 INHIBITORY = {"gaba", "glutamate"}   # Shiu et al. 2024 convention: GABA & Glu inhibitory, others excitatory
-MIN_SYN = 5                          # drop weak connections (< 5 synapses), as in most LIF connectome models
+MIN_SYN = 5                          # drop connections with fewer than 5 synapses (the FlyWire paper's "strong connection" threshold)
 
 
 def _sign(nt: pd.Series) -> np.ndarray:

@@ -103,6 +103,12 @@ published function of a cell type. Input and read-out neurons of an assay are ne
 trivially destroyed). Scores are firing rates over 300 ms relative to the intact network; "hear" counts responding
 Fru⁺/Dsx⁺ auditory neurons. The model has no neuromodulation, no plasticity, and no internal state.
 
+## Tests
+
+```bash
+uv run pytest -q
+```
+
 ## Data
 
 MaleCNS v1.0 (Janelia FlyEM, Cambridge Connectomics, Google Research, 2026) · FlyWire FAFB v783 (Dorkenwald et al.,

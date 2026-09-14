@@ -51,7 +51,7 @@ const COL = { base: new THREE.Color("#a3abbf"), io: new THREE.Color("#dfe4ef"), 
 /* ---------- renderer ---------- */
 const renderer = new THREE.WebGLRenderer({ canvas: $("view"), antialias: true }); renderer.setPixelRatio(PR); renderer.setClearColor(0x090b10, 1);
 const scene = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(34, 1, 0.1, 500);
-let theta = 0.15, phi = 1.3, dist = 62, autoRot = true; const target = new THREE.Vector3(2, -1, 0);
+let theta = 0.15, phi = 1.3, dist = 56, autoRot = true; const target = new THREE.Vector3(2, -1, 0);
 function resize() { renderer.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); } addEventListener("resize", resize); resize();
 { let down = false, lx = 0, ly = 0; const el = $("view");
   el.addEventListener("pointerdown", e => { down = true; lx = e.clientX; ly = e.clientY; el.setPointerCapture(e.pointerId); });

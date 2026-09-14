@@ -9,7 +9,7 @@ from .connectome import Connectome
 from .lif import LIFBrain, LIFParams
 from .arena import MALE_PARAMS, FEMALE_PARAMS
 
-T_MS = 300.0
+T_MS = 300.0   # ms of simulated time per assay
 
 def assays(c: Connectome) -> dict:
     s = c.select

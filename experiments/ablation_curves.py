@@ -4,6 +4,7 @@ from twobrains.connectome import Connectome
 from twobrains.ablation import assays, score_all
 
 name = sys.argv[1] if len(sys.argv) > 1 else "flywire"
+assert name in ("flywire", "malecns"), "usage: ablation_curves.py [flywire|malecns]"
 FRACS = [0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 SEEDS = [0, 1, 2]
 c = Connectome.load(name); A = assays(c); N = c.N; m = c.meta

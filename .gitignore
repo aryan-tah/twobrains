@@ -6,3 +6,7 @@ __pycache__/
 *.pyc
 dist/
 web/data/*.bin
+
+# local artefacts
+/tmp/
+*.png

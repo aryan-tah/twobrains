@@ -1,5 +1,7 @@
 # TwoBrains · Delete the Brain
 
+[![license](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE) [![data](https://img.shields.io/badge/data-CC--BY_4.0-green.svg)](data/README.md)
+
 **How much of a real brain can you delete before it stops working?**
 
 A complete fruit fly brain, 139,248 neurons and 2.7 million connections measured by electron microscopy

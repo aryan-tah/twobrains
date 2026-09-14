@@ -96,6 +96,8 @@ cd web && python3 -m http.server 8000                     # open http://localhos
 
 ## Caveats, stated plainly
 
+The minimal-circuit numbers count neurons from the assay input population onward; sensory transduction upstream of that population (e.g. photoreceptors and optic-lobe processing for the looming detectors) is not included. For the acceptance assay the input (pC1a) and output (vpoDN) are directly connected, so its minimal circuit is those four neurons by construction.
+
 This is a connectome-derived computational model, not a fly. Every assay is an engineering choice grounded in the
 published function of a cell type. Input and read-out neurons of an assay are never deleted (otherwise every test is
 trivially destroyed). Scores are firing rates over 300 ms relative to the intact network; "hear" counts responding

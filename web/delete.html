@@ -46,7 +46,7 @@
 <script>
 const $ = id => document.getElementById(id), PR = Math.min(devicePixelRatio || 1, 2);
 const CAP = { steer: ["Steer toward a target", "LC10a → DNa02"], escape: ["Escape a threat", "LPLC2/LC4 → giant fiber"], walk: ["Walk and turn", "vision → DNp09/DNa01/DNa02"], hear: ["Hear a song", "JO-A/B → auditory neurons"], accept: ["Accept a mate", "pC1a → vpoDN"] };
-const COL = { base: new THREE.Color("#8a93a8"), io: new THREE.Color("#c3c9d8"), fire: new THREE.Color("#4f8cff"), del: new THREE.Color("#ff5a5a") };
+const COL = { base: new THREE.Color("#a3abbf"), io: new THREE.Color("#dfe4ef"), fire: new THREE.Color("#4f8cff"), del: new THREE.Color("#ff5a5a") };
 
 /* ---------- renderer ---------- */
 const renderer = new THREE.WebGLRenderer({ canvas: $("view"), antialias: true }); renderer.setPixelRatio(PR); renderer.setClearColor(0x0b0d12, 1);

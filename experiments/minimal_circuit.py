@@ -5,7 +5,7 @@ from twobrains.connectome import Connectome
 from twobrains.lif import LIFBrain
 from twobrains.ablation import assays, params, masked, T_MS
 
-name = sys.argv[1] if len(sys.argv) > 1 else "flywire"; THRESH = 0.5
+name = sys.argv[1] if len(sys.argv) > 1 else "flywire"; THRESH = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
 c = Connectome.load(name); A = assays(c); p = params(c); N = c.N
 out = {"brain": name, "N": int(N), "circuits": {}}
 for k, a in A.items():

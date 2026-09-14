@@ -49,7 +49,7 @@ const CAP = { steer: ["Steer toward a target", "LC10a → DNa02"], escape: ["Esc
 const COL = { base: new THREE.Color("#a3abbf"), io: new THREE.Color("#dfe4ef"), fire: new THREE.Color("#4f8cff"), del: new THREE.Color("#ff5a5a") };
 
 /* ---------- renderer ---------- */
-const renderer = new THREE.WebGLRenderer({ canvas: $("view"), antialias: true }); renderer.setPixelRatio(PR); renderer.setClearColor(0x0b0d12, 1);
+const renderer = new THREE.WebGLRenderer({ canvas: $("view"), antialias: true }); renderer.setPixelRatio(PR); renderer.setClearColor(0x090b10, 1);
 const scene = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(34, 1, 0.1, 500);
 let theta = 0.15, phi = 1.3, dist = 62, autoRot = true; const target = new THREE.Vector3(2, -1, 0);
 function resize() { renderer.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); } addEventListener("resize", resize); resize();

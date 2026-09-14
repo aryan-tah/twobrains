@@ -74,7 +74,7 @@ tests that do not involve learning or navigation.
 
 * `twobrains/connectome.py` loads MaleCNS v1.0 or FlyWire v783 into a signed sparse matrix (GABA/glutamate inhibitory, ≥ 5 synapses).
 * `twobrains/lif.py` is an event-driven leaky integrate-and-fire simulator with the parameters of Shiu et al. 2024
-  (τm 20 ms, threshold −45 mV, 0.275 mV per synapse, 1.8 ms delay), plus a 30 mV synaptic-drive ceiling and
+  as released in their code (τm 20 ms, rest −52 mV, threshold −45 mV, 0.275 mV per synapse, 1.8 ms delay, 2.2 ms refractory), plus a 30 mV synaptic-drive ceiling and
   spike-frequency adaptation (3 mV / spike, τ 200 ms) which are required to keep the network out of a seizure state.
   The male gain is calibrated to 0.2 mV because MaleCNS reports ≈ 2.3× more input synapses per neuron than FlyWire.
 * `twobrains/ablation.py` defines the capability assays and masks neurons out of the matrix.

@@ -1,6 +1,7 @@
 /* In-browser leaky integrate-and-fire simulation of a whole connectome (event-driven, CSC by presynaptic neuron).
    Same model and parameters as twobrains/lif.py. Only "hot" neurons (non-resting state) are integrated each step,
    so a 139k-neuron brain runs an assay in well under a second. Runs in a Web Worker. */
+"use strict";
 let N = 0, nnz = 0, indptr, indices, wdata, P, keep;
 
 function load(buf) {

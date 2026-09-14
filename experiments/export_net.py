@@ -4,6 +4,7 @@ from twobrains.connectome import Connectome
 from twobrains.ablation import assays, params
 
 name = sys.argv[1] if len(sys.argv) > 1 else "flywire"
+assert name in ("flywire", "malecns"), "usage: export_net.py [flywire|malecns]"
 c = Connectome.load(name); W = c.W.tocsc(); W.sort_indices(); N = c.N; p = params(c); A = assays(c)
 pos = np.load(f"cache/{name}.soma.npy").astype(np.float32); ok = np.isfinite(pos[:, 0])
 pos[~ok] = np.nan

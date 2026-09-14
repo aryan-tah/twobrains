@@ -34,6 +34,7 @@
   #foot { right:40px; bottom:150px; text-align:right; font-size:12px; color:var(--faint); line-height:1.6 }
   #foot b { color:var(--muted); font-weight:500 }
   #prog { position:fixed; left:0; top:0; height:2px; background:var(--accent); width:0; z-index:3; transition:width .2s linear }
+  @media (prefers-reduced-motion:reduce) { .bar .fil { transition:none } #prog { transition:none } }
   @media (max-width:1000px) { #bars { grid-template-columns:repeat(2, 1fr) } #foot { display:none } #head h1 { font-size:26px } #kpi .big { font-size:40px } }
 </style>
 </head>

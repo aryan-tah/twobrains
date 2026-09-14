@@ -123,7 +123,7 @@ function build(pos) {
   for (let i = 0; i < N; i++) { const p = [pos[3*i], -pos[3*i+1], pos[3*i+2]]; if (!isFinite(p[0])) continue; ok[i] = 1; P.set(p, 3 * i); for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], p[k]); mx[k] = Math.max(mx[k], p[k]); } }
   const ctr = mn.map((v, k) => (v + mx[k]) / 2), sc = 34 / (mx[0] - mn[0]);
   const io = new Uint8Array(N); for (const a of Object.values(meta.assays)) { for (const i of a.inp) io[i] = 1; for (const i of a.out) io[i] = 1; }
-  for (let i = 0; i < N; i++) { if (!ok[i]) { alpha[i] = 0; continue; } for (let k = 0; k < 3; k++) P[3*i+k] = (P[3*i+k] - ctr[k]) * sc; const c = io[i] ? COL.io : COL.base; color.set([c.r, c.g, c.b], 3 * i); alpha[i] = io[i] ? 0.95 : 0.7; size[i] = io[i] ? 2.8 : 2.1; }
+  for (let i = 0; i < N; i++) { if (!ok[i]) { alpha[i] = 0; continue; } for (let k = 0; k < 3; k++) P[3*i+k] = (P[3*i+k] - ctr[k]) * sc; const c = io[i] ? COL.io : COL.base; color.set([c.r, c.g, c.b], 3 * i); alpha[i] = io[i] ? 1.0 : 0.82; size[i] = io[i] ? 3.0 : 2.3; }
   geo.setAttribute("position", new THREE.BufferAttribute(P, 3)); geo.setAttribute("aColor", new THREE.BufferAttribute(color, 3)); geo.setAttribute("aAlpha", new THREE.BufferAttribute(alpha, 1)); geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
   pts = new THREE.Points(geo, new THREE.ShaderMaterial({ uniforms: { uPx: { value: PR } }, vertexShader: VS, fragmentShader: FS, transparent: true, depthWrite: false })); pts.frustumCulled = false; rig.add(pts);
   pts.userData = { ok, io, baseA: Float32Array.from(alpha), baseS: Float32Array.from(size), baseC: Float32Array.from(color) };

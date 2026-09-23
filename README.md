@@ -94,6 +94,10 @@ uv run python experiments/export_net.py flywire           # binary for the brows
 cd web && python3 -m http.server 8000                     # open http://localhost:8000/delete.html
 ```
 
+The browser demo (`web/delete.html`) reads `web/data/flywire_net.bin` and `web/data/flywire_meta.json` (~21 MB
+together). They are produced by the `export_net.py` step above and are not committed, so cloning the repo alone is not
+enough to open the demo: build the caches and run the export first.
+
 ## Caveats, stated plainly
 
 The minimal-circuit numbers count neurons from the assay input population onward; sensory transduction upstream of that population (e.g. photoreceptors and optic-lobe processing for the looming detectors) is not included. For the acceptance assay the input (pC1a) and output (vpoDN) are directly connected, so its minimal circuit is those four neurons by construction.
@@ -102,6 +106,15 @@ This is a connectome-derived computational model, not a fly. Every assay is an e
 published function of a cell type. Input and read-out neurons of an assay are never deleted (otherwise every test is
 trivially destroyed). Scores are firing rates over 300 ms relative to the intact network; "hear" counts responding
 Fru⁺/Dsx⁺ auditory neurons. The model has no neuromodulation, no plasticity, and no internal state.
+
+A null result says nothing about the deleted region. Deleting the mushroom body or the central complex leaves every
+score within seed noise of the intact brain because none of the five assays needs learning, memory or navigation:
+they are reflexes, and reflexes do not route through those regions. The tables measure what a circuit can lose and still fire in this model. They do
+not measure what a region is for, and they do not rank regions by importance.
+
+"Redundant" here means wide and shallow wiring such that no single neuron matters, as in the escape circuit where
+~300 looming detectors converge on the giant fiber. It does not mean wasted. The model has no metabolic cost, so it
+cannot say anything about efficiency.
 
 ## Tests
 
